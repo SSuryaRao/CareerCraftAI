@@ -8,6 +8,9 @@
 *.env.yaml
 .env.yaml
 **/.env.yaml
+*.env.example
+.env.example
+**/.env.example
 
 # Credentials and Service Accounts
 credentials/
@@ -91,12 +94,15 @@ backend/**/*.md
 *.bat
 *.ps1
 *.sh
+*.yaml
 gcp-setup-info.txt
 deploy-*.sh
 redeploy-*.sh
 setup-*.bat
 setup-*.ps1
 setup-*.sh
+cloud-run-env-complete.yaml
+check-database.js
 
 # Other folders to exclude
 diagrams/

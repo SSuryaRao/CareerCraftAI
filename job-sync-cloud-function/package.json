@@ -1,0 +1,23 @@
+{
+  "name": "career-advisor-job-sync",
+  "version": "1.0.0",
+  "description": "Google Cloud Function for syncing job listings from multiple APIs",
+  "main": "index.js",
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "scripts": {
+    "start": "functions-framework --target=syncJobs",
+    "deploy": "gcloud functions deploy syncJobs --runtime nodejs18 --trigger-http --allow-unauthenticated --region us-central1 --env-vars-file .env.yaml",
+    "test": "node test-local.js"
+  },
+  "dependencies": {
+    "@google-cloud/functions-framework": "^3.3.0",
+    "axios": "^1.6.2",
+    "mongoose": "^8.0.3",
+    "dotenv": "^16.3.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.2"
+  }
+}

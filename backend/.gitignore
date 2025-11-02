@@ -1,0 +1,98 @@
+# Dependencies
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# Environment Variables
+.env
+.env.*
+!.env.example
+.env.local
+.env.development
+.env.production
+.env.test
+
+# Credentials & Service Accounts
+credentials/
+*.json
+!package.json
+!package-lock.json
+!tsconfig.json
+*.key
+*.pem
+*.p12
+*.pfx
+service-account*.json
+firebase-adminsdk*.json
+gcp-service-account*.json
+
+# API Keys & Secrets
+secrets/
+config/secrets.js
+config/secrets.ts
+*.secret
+.secrets
+
+# Logs
+logs/
+*.log
+combined.log
+error.log
+
+# Build & Production
+dist/
+build/
+out/
+.next/
+*.tsbuildinfo
+
+# Testing
+coverage/
+.nyc_output/
+
+# OS & Editor
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
+.vscode/
+.idea/
+*.sublime-*
+.project
+
+# Temporary Files
+tmp/
+temp/
+*.tmp
+*.bak
+*.cache
+
+# Deployment Scripts (contain sensitive info)
+*.sh
+*.bat
+*.ps1
+deploy*.sh
+deploy*.bat
+deploy*.ps1
+setup*.sh
+setup*.bat
+setup*.ps1
+gcp-setup/
+.dockerignore
+Dockerfile
+
+# Database
+*.sqlite
+*.db
+*.sql
+
+# Misc
+.git/
+.cache/
+.parcel-cache/

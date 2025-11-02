@@ -1,0 +1,16 @@
+# This file tells gcloud what to ignore when uploading
+# We want to include Dockerfile for Cloud Run builds
+
+node_modules/
+.next/
+.git/
+.env.local
+*.log
+.vercel/
+.cache/
+coverage/
+dist/
+build/
+
+# Don't ignore Dockerfile - we need it for Cloud Run
+!Dockerfile

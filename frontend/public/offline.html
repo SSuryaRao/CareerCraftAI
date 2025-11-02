@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Offline - CareerCraft AI</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+      background: linear-gradient(135deg, #0f172a 0%, #581c87 50%, #0f172a 100%);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      text-align: center;
+      padding: 2rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Animated background blobs */
+    body::before {
+      content: '';
+      position: absolute;
+      top: 20%;
+      left: 20%;
+      width: 400px;
+      height: 400px;
+      background: rgba(139, 92, 246, 0.2);
+      border-radius: 50%;
+      filter: blur(80px);
+      animation: float 6s ease-in-out infinite;
+    }
+
+    body::after {
+      content: '';
+      position: absolute;
+      bottom: 20%;
+      right: 20%;
+      width: 350px;
+      height: 350px;
+      background: rgba(236, 72, 153, 0.2);
+      border-radius: 50%;
+      filter: blur(80px);
+      animation: float 8s ease-in-out infinite;
+      animation-delay: 2s;
+    }
+
+    @keyframes float {
+      0%, 100% {
+        transform: translate(0, 0) scale(1);
+      }
+      33% {
+        transform: translate(30px, -50px) scale(1.1);
+      }
+      66% {
+        transform: translate(-30px, 30px) scale(0.9);
+      }
+    }
+
+    .container {
+      max-width: 600px;
+      padding: 2rem;
+      position: relative;
+      z-index: 1;
+    }
+
+    .icon-wrapper {
+      margin-bottom: 2rem;
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% {
+        opacity: 1;
+        transform: scale(1);
+      }
+      50% {
+        opacity: 0.8;
+        transform: scale(1.05);
+      }
+    }
+
+    .offline-icon {
+      width: 120px;
+      height: 120px;
+      margin: 0 auto;
+      background: linear-gradient(135deg, #8b5cf6, #ec4899);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 60px;
+    }
+
+    h1 {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+      background: linear-gradient(135deg, #a78bfa, #ec4899);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+    }
+
+    p {
+      font-size: 1.25rem;
+      color: #cbd5e1;
+      line-height: 1.6;
+      margin-bottom: 1rem;
+    }
+
+    .brand {
+      margin-top: 3rem;
+      font-size: 1rem;
+      color: #94a3b8;
+      font-weight: 500;
+    }
+
+    .brand strong {
+      background: linear-gradient(135deg, #8b5cf6, #ec4899);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      font-weight: 700;
+    }
+
+    .retry-button {
+      margin-top: 2rem;
+      padding: 1rem 2rem;
+      background: linear-gradient(135deg, #8b5cf6, #ec4899);
+      color: white;
+      border: none;
+      border-radius: 12px;
+      font-size: 1.1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+      box-shadow: 0 10px 30px rgba(139, 92, 246, 0.3);
+    }
+
+    .retry-button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 15px 40px rgba(139, 92, 246, 0.4);
+    }
+
+    .retry-button:active {
+      transform: translateY(0);
+    }
+
+    @media (max-width: 640px) {
+      h1 {
+        font-size: 2rem;
+      }
+
+      p {
+        font-size: 1rem;
+      }
+
+      .offline-icon {
+        width: 80px;
+        height: 80px;
+        font-size: 40px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="icon-wrapper">
+      <div class="offline-icon">
+        📡
+      </div>
+    </div>
+
+    <h1>You're Offline</h1>
+
+    <p>It looks like you've lost your internet connection.</p>
+    <p>Please check your network and try again.</p>
+
+    <button class="retry-button" onclick="window.location.reload()">
+      Try Again
+    </button>
+
+    <div class="brand">
+      <strong>CareerCraft AI</strong> will be back when you're online!
+    </div>
+  </div>
+</body>
+</html>

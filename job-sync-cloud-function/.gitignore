@@ -1,0 +1,53 @@
+# Dependencies
+node_modules/
+package-lock.json
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Environment files
+.env
+.env.local
+.env.development
+.env.production
+.env.yaml
+.env.yml
+
+# Logs
+logs/
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Build files
+dist/
+build/
+
+# Test files
+coverage/
+.nyc_output/
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+
+# Google Cloud
+.gcloudignore
+credentials.json
+service-account-key.json
+
+# MongoDB
+mongo-data/
+
+# Misc
+.cache/

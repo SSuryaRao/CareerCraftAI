@@ -1,0 +1,20 @@
+{
+  "name": "scholarship-scraper",
+  "version": "1.0.0",
+  "description": "Google Cloud Function to scrape scholarships and internships",
+  "main": "index.js",
+  "scripts": {
+    "test": "node index.js",
+    "deploy": "gcloud functions deploy scrapeScholarships --runtime nodejs20 --trigger-http --allow-unauthenticated --region us-central1"
+  },
+  "dependencies": {
+    "@google-cloud/functions-framework": "^3.3.0",
+    "axios": "^1.6.0",
+    "cheerio": "^1.0.0-rc.12",
+    "mongodb": "^6.3.0",
+    "scraperapi-sdk": "^1.0.6"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  }
+}

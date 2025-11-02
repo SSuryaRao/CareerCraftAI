@@ -12,7 +12,7 @@
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.3.3-blue?logo=typescript)](https://www.typescriptlang.org/)
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-[🌐 Live Demo](https://career-craft-ai-three.vercel.app) | [📹 Video Demo](#demo) | [📖 Documentation](#documentation)
+[🌐 Live Demo](https://careercraft-frontend-1030709276859.us-central1.run.app) | [📹 Video Demo](https://youtu.be/2rb_krNQHOE) | [📖 Documentation](#documentation)
 
 </div>
 

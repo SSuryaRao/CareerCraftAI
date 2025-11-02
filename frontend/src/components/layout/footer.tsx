@@ -270,7 +270,7 @@ export default function Footer() {
             <div className="flex flex-col md:flex-row items-center justify-between">
               <div className="flex flex-wrap items-center gap-6 mb-4 md:mb-0">
                 <p className="text-gray-600 dark:text-gray-400 text-sm flex items-center">
-                  © 2024 CareerCraft AI. Made with
+                  © 2025 CareerCraft AI. Made with
                   <Heart className="w-4 h-4 text-red-500 mx-1 fill-current" />
                   in India
                 </p>

@@ -29,11 +29,13 @@ const footerLinks = {
     { name: 'About Us', href: '/about' },
     { name: 'Reviews', href: '/reviews' },
     { name: 'Feedback', href: '/feedback' },
-    { name: 'Contact', href: '#' }
+    { name: 'Contact', href: '/contact' }
   ],
   legal: [
     { name: 'Privacy Policy', href: '/privacy' },
-    { name: 'Terms of Service', href: '/terms' }
+    { name: 'Terms of Service', href: '/terms' },
+    { name: 'Refund Policy', href: '/refund' },
+    { name: 'Shipping Policy', href: '/shipping' }
   ]
 }
 

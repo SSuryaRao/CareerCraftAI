@@ -56,7 +56,7 @@ const navigation = [
   },
   {
     name: 'Solutions',
-    href: '/solutions',
+    href: '#',
     dropdown: [
       // { name: 'For Students', href: '/solutions/students', icon: GraduationCap },
       { name: 'Roadmap', href: '/solutions/roadmap', icon: MapPin },

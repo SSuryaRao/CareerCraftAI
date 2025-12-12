@@ -3,6 +3,20 @@ const Job = require('../models/Job');
 const Resume = require('../models/Resume');
 const User = require('../models/User');
 
+// In-memory cache for job recommendations (30 minutes TTL)
+const jobRecommendationCache = new Map();
+const CACHE_TTL = 30 * 60 * 1000; // 30 minutes
+
+// Clean expired cache entries every 5 minutes
+setInterval(() => {
+  const now = Date.now();
+  for (const [key, value] of jobRecommendationCache.entries()) {
+    if (now - value.timestamp > CACHE_TTL) {
+      jobRecommendationCache.delete(key);
+    }
+  }
+}, 5 * 60 * 1000);
+
 /**
  * Job Recommendation Service
  * Uses Vertex AI (Gemini) to provide intelligent job recommendations
@@ -22,8 +36,26 @@ class JobRecommendationService {
         minMatchScore = 50
       } = options;
 
+      // Check cache first (OPTIMIZATION)
+      const cacheKey = `job_rec_${firebaseUid}_${limit}_${minMatchScore}`;
+      const cached = jobRecommendationCache.get(cacheKey);
+      if (cached && (Date.now() - cached.timestamp < CACHE_TTL)) {
+        console.log(`✅ Returning cached job recommendations for user: ${firebaseUid}`);
+        return {
+          success: true,
+          recommendations: cached.recommendations,
+          total: cached.total,
+          fromCache: true,
+          cacheAge: Math.round((Date.now() - cached.timestamp) / 1000) + 's'
+        };
+      }
+
+      console.time('Total Job Recommendation Time');
+
       // 1. Get user profile and resume data
+      console.time('Fetch User Data');
       const userData = await this.getUserData(firebaseUid);
+      console.timeEnd('Fetch User Data');
 
       if (!userData.hasProfile) {
         return {
@@ -33,14 +65,26 @@ class JobRecommendationService {
         };
       }
 
-      // 2. Get available jobs (active, recent)
-      const availableJobs = await Job.find({
+      // 2. Get available jobs (active, recent) - OPTIMIZED with smarter filtering
+      console.time('Fetch Jobs');
+      const jobFilter = {
         isActive: true,
-        postedAt: { $gte: new Date(Date.now() - 60 * 24 * 60 * 60 * 1000) } // Last 60 days
-      })
-      .sort({ postedAt: -1 })
-      .limit(8) // Analyze top 8 recent jobs (reduced to prevent MAX_TOKENS truncation)
+        postedAt: { $gte: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000) } // Reduced to 30 days for fresher jobs
+      };
+
+      // Pre-filter by user preferences if available
+      if (userData.user?.preferences?.jobType?.length > 0) {
+        jobFilter.jobType = { $in: userData.user.preferences.jobType };
+      }
+
+      const availableJobs = await Job.find(jobFilter)
+      .sort({ featured: -1, postedAt: -1 }) // Prioritize featured jobs
+      .limit(12) // Increased from 8 to 12 for better variety
+      .select('title company description tags jobType experienceLevel location salary applicationUrl postedAt featured') // Select only needed fields
       .lean();
+
+      console.timeEnd('Fetch Jobs');
+      console.log(`📊 Fetched ${availableJobs.length} jobs for matching`);
 
       if (availableJobs.length === 0) {
         return {
@@ -51,16 +95,31 @@ class JobRecommendationService {
       }
 
       // 3. Use Vertex AI to match jobs
+      console.time('AI Matching');
       const recommendations = await this.matchJobsWithAI(userData, availableJobs, {
         limit,
         includeReasons,
         minMatchScore
       });
+      console.timeEnd('AI Matching');
+
+      console.log(`✅ Generated ${recommendations.length} job recommendations`);
+      console.timeEnd('Total Job Recommendation Time');
+
+      // Cache the results (OPTIMIZATION)
+      jobRecommendationCache.set(cacheKey, {
+        recommendations,
+        total: recommendations.length,
+        timestamp: Date.now()
+      });
+
+      console.log(`💾 Cached job recommendations for user: ${firebaseUid} (TTL: ${CACHE_TTL / 1000}s)`);
 
       return {
         success: true,
         recommendations,
-        total: recommendations.length
+        total: recommendations.length,
+        fromCache: false
       };
 
     } catch (error) {
@@ -200,62 +259,42 @@ class JobRecommendationService {
   buildRecommendationPrompt(userData, jobs) {
     const { user, resume } = userData;
 
-    // Simplify jobs data for AI (only essential fields)
+    // Simplified jobs data (OPTIMIZED - only essential fields)
     const simplifiedJobs = jobs.map(job => ({
       id: job._id.toString(),
       title: job.title,
       company: job.company,
-      description: job.description?.substring(0, 150), // Limit description to 150 chars
-      tags: job.tags?.slice(0, 5) || [], // Max 5 tags
-      jobType: job.jobType,
-      experienceLevel: job.experienceLevel,
-      location: job.location
-      // Removed salary to reduce prompt size
+      desc: job.description?.substring(0, 120), // Reduced to 120 chars
+      tags: job.tags?.slice(0, 4) || [], // Max 4 tags
+      type: job.jobType,
+      level: job.experienceLevel,
+      loc: job.location
     }));
 
-    return `You are an expert career advisor AI. Analyze the user's profile and recommend the best matching jobs.
+    // OPTIMIZED PROMPT - Much shorter!
+    return `Career advisor: Match jobs to user.
 
-USER PROFILE:
-- Name: ${user.name}
-- Years of Experience: ${resume?.yearsOfExperience || 0} years
-- Skills: ${resume?.skills?.join(', ') || 'Not specified'}
-- Experience: ${resume?.experience?.map(exp => `${exp.title} at ${exp.company}`).join('; ') || 'Not specified'}
-- Education: ${resume?.education?.map(edu => `${edu.degree} in ${edu.field}`).join('; ') || 'Not specified'}
-- Career Summary: ${resume?.summary || 'Not provided'}
-- Job Type Preference: ${user.preferences.jobType?.join(', ') || 'Any'}
-- Location Preference: ${user.preferences.locations?.join(', ') || 'Any'}
-- Remote Work: ${user.preferences.remoteWork ? 'Preferred' : 'No preference'}
+USER:
+Experience: ${resume?.yearsOfExperience || 0}y
+Skills: ${resume?.skills?.slice(0, 10).join(', ') || 'Not specified'}
+Recent: ${resume?.experience?.slice(0, 2).map(exp => `${exp.title} at ${exp.company}`).join('; ') || 'N/A'}
+Degree: ${resume?.education?.[0]?.degree || 'N/A'}
+Pref: ${user.preferences.jobType?.join(', ') || 'Any'}, ${user.preferences.remoteWork ? 'Remote' : 'Office'}
 
-AVAILABLE JOBS (${simplifiedJobs.length} total):
-${JSON.stringify(simplifiedJobs, null, 2)}
+JOBS (${simplifiedJobs.length}):
+${JSON.stringify(simplifiedJobs, null, 0)}
 
-TASK:
-Analyze each job and provide recommendations. For each job, evaluate:
-1. Skills match (how well user's skills match job requirements)
-2. Experience level match
-3. Career fit (does this align with their career progression?)
-4. Location/remote preference match
+Return top ${Math.min(jobs.length, 8)} matches as JSON. ULTRA-SHORT strings!
 
-Return ONLY a valid JSON array with this exact format (no markdown, no extra text):
-[
-  {
-    "jobId": "job_id_here",
-    "matchScore": 85,
-    "reason": "Your React and Node.js skills are a perfect match for this Full Stack role. Your 3 years of experience aligns with their mid-level requirement.",
-    "skillGaps": ["TypeScript", "AWS"],
-    "careerFit": "This role offers growth in full-stack development, which matches your career trajectory.",
-    "strengths": ["React expertise", "Similar company culture", "Remote option available"]
-  }
-]
+FORMAT:
+[{"jobId":"id","matchScore":80,"reason":"React+Node match","skillGaps":["AWS"],"careerFit":"Good growth","strengths":["Skills match"]}]
 
-CRITICAL RULES:
-- matchScore: 0-100 (higher is better)
-- Be generous with scoring! Give at least 50+ if any relevant match
-- Aim to recommend at least ${Math.min(jobs.length, 5)} jobs
-- Keep "reason" under 60 characters - VERY SHORT!
-- Keep "careerFit" under 50 characters - VERY SHORT!
-- Max 2 skillGaps, max 2 strengths
-- Return ONLY valid JSON array, no markdown, no extra text`;
+RULES:
+- matchScore 0-100, recommend if >=50
+- reason MAX 45 chars
+- careerFit MAX 40 chars
+- Max 2 skillGaps, 2 strengths
+- NO markdown, NO extras`;
   }
 
   /**

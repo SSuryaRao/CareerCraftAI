@@ -356,3 +356,99 @@ Be specific, encouraging, and actionable. Consider the Indian job market context
     });
   }
 };
+
+/**
+ * Convert text to speech audio
+ */
+exports.textToSpeech = async (req, res) => {
+  try {
+    const { text, language = 'en-IN', voiceGender = 'FEMALE', speakingRate = 1.0, pitch = 0.0 } = req.body;
+
+    if (!text || text.trim().length === 0) {
+      return res.status(400).json({
+        success: false,
+        error: 'Text is required'
+      });
+    }
+
+    const ttsService = require('../services/textToSpeech');
+
+    if (!ttsService.isReady()) {
+      return res.status(503).json({
+        success: false,
+        error: 'Text-to-Speech service is not configured. Please check server settings.'
+      });
+    }
+
+    console.log(`🔊 Text-to-Speech request: ${text.substring(0, 50)}... (${language}, ${voiceGender})`);
+
+    // Generate audio
+    const audioBase64 = await ttsService.textToSpeechBase64(text, language, voiceGender, speakingRate, pitch);
+
+    res.json({
+      success: true,
+      data: {
+        audio: audioBase64,
+        format: 'mp3',
+        language,
+        voiceGender
+      }
+    });
+
+  } catch (error) {
+    console.error('❌ Error in textToSpeech:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to generate speech. Please try again.'
+    });
+  }
+};
+
+/**
+ * Convert audio to text transcription
+ */
+exports.speechToText = async (req, res) => {
+  try {
+    const { audio, language = 'en-IN', encoding = 'WEBM_OPUS', sampleRate = 48000 } = req.body;
+
+    if (!audio) {
+      return res.status(400).json({
+        success: false,
+        error: 'Audio data is required'
+      });
+    }
+
+    const sttService = require('../services/speechToText');
+
+    if (!sttService.isReady()) {
+      return res.status(503).json({
+        success: false,
+        error: 'Speech-to-Text service is not configured. Please check server settings.'
+      });
+    }
+
+    console.log(`🎤 Speech-to-Text request (${language}, ${encoding})`);
+
+    // Convert base64 to buffer
+    const audioBuffer = Buffer.from(audio, 'base64');
+
+    // Transcribe audio
+    const result = await sttService.transcribeAudio(audioBuffer, language, sampleRate, encoding);
+
+    res.json({
+      success: true,
+      data: {
+        text: result.text,
+        confidence: result.confidence,
+        language: result.language
+      }
+    });
+
+  } catch (error) {
+    console.error('❌ Error in speechToText:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to transcribe audio. Please try again.'
+    });
+  }
+};

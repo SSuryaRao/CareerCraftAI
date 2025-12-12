@@ -189,7 +189,8 @@ class ApiClient {
   async sendMentorMessage(message: string, mentorPersona: any, language = 'English'): Promise<ApiResponse<any>> {
     return this.request('/api/mentor/message', {
       method: 'POST',
-      body: JSON.stringify({ message, mentorPersona, language })
+      body: JSON.stringify({ message, mentorPersona, language }),
+      timeout: 90000 // 90 seconds timeout for AI mentor responses (especially for multilingual)
     })
   }
 
@@ -216,6 +217,32 @@ class ApiClient {
     return this.request('/api/mentor/career-guidance', {
       method: 'POST',
       body: JSON.stringify({ situation })
+    })
+  }
+
+  // Voice Methods
+  async textToSpeech(params: {
+    text: string
+    language?: string
+    voiceGender?: 'MALE' | 'FEMALE'
+    speakingRate?: number
+    pitch?: number
+  }): Promise<ApiResponse<any>> {
+    return this.request('/api/mentor/text-to-speech', {
+      method: 'POST',
+      body: JSON.stringify(params)
+    })
+  }
+
+  async speechToText(params: {
+    audio: string
+    language?: string
+    encoding?: string
+    sampleRate?: number
+  }): Promise<ApiResponse<any>> {
+    return this.request('/api/mentor/speech-to-text', {
+      method: 'POST',
+      body: JSON.stringify(params)
     })
   }
 

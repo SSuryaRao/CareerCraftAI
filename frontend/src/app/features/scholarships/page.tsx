@@ -496,24 +496,37 @@ export default function ScholarshipsPage() {
             </motion.div>
           )}
 
-          {/* Personalized Loading Info */}
+          {/* Personalized Loading Info - ENHANCED */}
           {personalizedLoading && activeTab === 'scholarships' && (
             <motion.div
               initial={{ opacity: 0, y: -10, scale: 0.95 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               transition={{ duration: 0.3 }}
-              className="mb-4 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-300 dark:border-blue-500/50 rounded-lg"
+              className="mb-4 p-5 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 border-2 border-blue-300 dark:border-blue-500/50 rounded-xl shadow-lg"
             >
-              <div className="flex items-center space-x-3 mb-2">
+              <div className="flex items-center space-x-3 mb-3">
                 <motion.div
                   animate={{ rotate: 360 }}
                   transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
                 >
-                  <Sparkles className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                  <Sparkles className="w-6 h-6 text-blue-600 dark:text-blue-400" />
                 </motion.div>
-                <span className="font-medium text-blue-700 dark:text-blue-300">Generating personalized recommendations...</span>
+                <span className="font-bold text-blue-700 dark:text-blue-300 text-lg">🚀 AI is working its magic...</span>
               </div>
-              <p className="text-sm text-blue-600 dark:text-blue-400 ml-8">This may take up to 30-60 seconds as we analyze your profile and match you with the best scholarships.</p>
+              <div className="ml-9 space-y-2">
+                <p className="text-sm text-blue-700 dark:text-blue-400 font-medium">
+                  ⚡ <strong>Optimized for Speed:</strong> Analyzing top 30 most relevant scholarships
+                </p>
+                <p className="text-sm text-blue-600 dark:text-blue-400">
+                  🎯 Matching your profile with personalized recommendations
+                </p>
+                <p className="text-xs text-blue-500 dark:text-blue-500 mt-2">
+                  ⏱️ Estimated time: <strong>15-30 seconds</strong> (improved from 60s!)
+                </p>
+                <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">
+                  💡 Next time will be instant - results are cached for 30 minutes
+                </p>
+              </div>
             </motion.div>
           )}
 

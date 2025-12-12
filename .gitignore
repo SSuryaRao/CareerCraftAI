@@ -137,6 +137,17 @@ ui-debug.log
 *.dump
 *.backup
 
+# Data files (PDF, CSV, JSONL)
+*.pdf
+*.csv
+*.jsonl
+kaggle-data/
+**/kaggle-data/
+training-data/*.jsonl
+**/training-data/*.jsonl
+test-output/
+**/test-output/
+
 # Compiled binaries
 *.exe
 *.dll

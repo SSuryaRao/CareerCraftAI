@@ -12,6 +12,7 @@ import {
   Check, Loader2, ChevronDown
 } from 'lucide-react'
 import { apiClient } from '@/lib/api'
+import { useVoiceChat } from '@/hooks/useVoiceChat'
 
 interface Message {
   id: string
@@ -73,6 +74,7 @@ const languages = [
   { code: 'te', name: 'తెలుగు', flag: '🇮🇳' },
   { code: 'bn', name: 'বাংলা', flag: '🇮🇳' },
   { code: 'mr', name: 'मराठी', flag: '🇮🇳' },
+  { code: 'or', name: 'ଓଡ଼ିଆ', flag: '🇮🇳' },
 ]
 
 const quickActions = [
@@ -159,7 +161,26 @@ export default function AIMentor() {
 
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLTextAreaElement>(null)
-  const recognitionRef = useRef<any>(null)
+
+  // Initialize Google Cloud voice services
+  const voiceChat = useVoiceChat({
+    language: selectedLanguage.code === 'en' ? 'en-IN' : `${selectedLanguage.code}-IN`,
+    voiceGender: 'FEMALE',
+    speakingRate: 1.0,
+    pitch: 0.0,
+    maxRecordingTime: 60, // 1 minute max for voice messages
+    onTranscriptionComplete: (text, confidence) => {
+      console.log(`Transcription complete (${Math.round(confidence * 100)}% confidence):`, text)
+      setInputMessage(prev => prev + ' ' + text)
+      setIsRecording(false)
+    },
+    onSpeechError: (error) => {
+      console.error('Voice error:', error)
+      setError(`Voice error: ${error.message}`)
+      setIsRecording(false)
+      setIsSpeaking(false)
+    }
+  })
 
   // Initialize welcome message on client side only (avoid hydration mismatch)
   useEffect(() => {
@@ -186,28 +207,10 @@ export default function AIMentor() {
     scrollToBottom()
   }, [messages])
 
-  // Initialize speech recognition
+  // Update voice chat language when selectedLanguage changes
   useEffect(() => {
-    if (typeof window !== 'undefined' && 'webkitSpeechRecognition' in window) {
-      const recognition = new (window as any).webkitSpeechRecognition()
-      recognition.continuous = false
-      recognition.interimResults = false
-      recognition.lang = selectedLanguage.code === 'en' ? 'en-US' : `${selectedLanguage.code}-IN`
-      
-      recognition.onresult = (event: any) => {
-        const transcript = event.results[0][0].transcript
-        setInputMessage(prev => prev + ' ' + transcript)
-        setIsRecording(false)
-      }
-      
-      recognition.onerror = (event: any) => {
-        console.error('Speech recognition error:', event.error)
-        setIsRecording(false)
-        setError('Voice recognition failed. Please try typing instead.')
-      }
-      
-      recognitionRef.current = recognition
-    }
+    const langCode = selectedLanguage.code === 'en' ? 'en-IN' : `${selectedLanguage.code}-IN`
+    voiceChat.setLanguage(langCode)
   }, [selectedLanguage])
 
   const handleSendMessage = async () => {
@@ -282,19 +285,17 @@ export default function AIMentor() {
     inputRef.current?.focus()
   }
 
-  const handleVoiceToggle = () => {
-    if (!recognitionRef.current) {
-      setError('Voice recognition is not supported in your browser')
-      return
-    }
-
+  const handleVoiceToggle = async () => {
     if (isRecording) {
-      recognitionRef.current.stop()
+      // Stop recording and transcribe
+      voiceChat.stopRecording()
       setIsRecording(false)
     } else {
+      // Start recording
       try {
-        recognitionRef.current.start()
+        await voiceChat.startRecording()
         setIsRecording(true)
+        setError(null)
       } catch (error) {
         console.error('Failed to start recording:', error)
         setError('Failed to start voice recording')
@@ -302,17 +303,21 @@ export default function AIMentor() {
     }
   }
 
-  const handleSpeakMessage = (content: string) => {
-    if ('speechSynthesis' in window) {
-      if (isSpeaking) {
-        window.speechSynthesis.cancel()
-        setIsSpeaking(false)
-      } else {
-        const utterance = new SpeechSynthesisUtterance(content)
-        utterance.lang = selectedLanguage.code === 'en' ? 'en-US' : `${selectedLanguage.code}-IN`
-        utterance.onend = () => setIsSpeaking(false)
-        window.speechSynthesis.speak(utterance)
+  const handleSpeakMessage = async (content: string) => {
+    if (isSpeaking) {
+      // Stop current speech
+      voiceChat.stopSpeaking()
+      setIsSpeaking(false)
+    } else {
+      // Start speech with Google Cloud TTS
+      try {
         setIsSpeaking(true)
+        await voiceChat.speak(content)
+        // isSpeaking will be set to false by the hook when playback ends
+      } catch (error) {
+        console.error('Speech error:', error)
+        setError('Failed to generate speech')
+        setIsSpeaking(false)
       }
     }
   }
@@ -348,6 +353,22 @@ export default function AIMentor() {
               </div>
               
               <div className="flex items-center space-x-3">
+                {/* Language Selector */}
+                <select
+                  value={selectedLanguage.code}
+                  onChange={(e) => {
+                    const lang = languages.find(l => l.code === e.target.value)
+                    if (lang) setSelectedLanguage(lang)
+                  }}
+                  className="px-3 py-2 text-sm rounded-xl bg-white hover:bg-blue-50 dark:bg-white/10 dark:hover:bg-white/20 border border-blue-200 dark:border-white/20 text-gray-700 dark:text-white shadow-lg transition-all duration-300 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  {languages.map((lang) => (
+                    <option key={lang.code} value={lang.code} className="dark:bg-slate-800">
+                      {lang.flag} {lang.name}
+                    </option>
+                  ))}
+                </select>
+
                 {/* Mentor Selector Button */}
                 <Button
                   variant="outline"

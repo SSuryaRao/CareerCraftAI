@@ -57,4 +57,18 @@ router.post('/learning-path',
  */
 router.post('/career-guidance', mentorController.getCareerGuidance);
 
+/**
+ * @route   POST /api/mentor/text-to-speech
+ * @desc    Convert text to speech audio
+ * @access  Private
+ */
+router.post('/text-to-speech', mentorController.textToSpeech);
+
+/**
+ * @route   POST /api/mentor/speech-to-text
+ * @desc    Convert audio to text transcription
+ * @access  Private
+ */
+router.post('/speech-to-text', mentorController.speechToText);
+
 module.exports = router;

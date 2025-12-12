@@ -122,10 +122,10 @@ app.use((err, req, res, next) => {
   });
 });
 
-app.listen(PORT, () => {
+const server = app.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);
   console.log(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`);
-  
+
   // Force restart to pick up new routes
   if (process.env.NODE_ENV !== 'test') {
     // Start job synchronization service
@@ -139,3 +139,10 @@ app.listen(PORT, () => {
     dataSyncService.initializeCronJobs();
   }
 });
+
+// Increase server timeout for AI operations (especially multilingual mentor responses)
+server.timeout = 120000; // 120 seconds (2 minutes)
+server.keepAliveTimeout = 120000;
+server.headersTimeout = 125000; // Slightly higher than keepAliveTimeout
+
+console.log('⏱️  Server timeout set to 120 seconds for AI operations');

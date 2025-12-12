@@ -52,8 +52,18 @@ const scholarshipSchema = new mongoose.Schema({
   timestamps: true
 });
 
-// Index for faster searches
+// Optimized indexes for faster searches
+// Index for filtered queries (category, domain)
 scholarshipSchema.index({ category: 1, domain: 1, active: 1 });
+// Index for deadline-based sorting (common)
 scholarshipSchema.index({ deadline: 1, active: 1 });
+// Index for trending scholarships
+scholarshipSchema.index({ trending: -1, deadline: 1, active: 1 });
+// Compound index for personalized recommendations query (most important!)
+scholarshipSchema.index({ active: 1, trending: -1, deadline: 1, createdAt: -1 });
+// Index for domain filtering
+scholarshipSchema.index({ active: 1, domain: 1 });
+// Text index for search functionality (if needed later)
+scholarshipSchema.index({ title: 'text', provider: 'text', eligibility: 'text' });
 
 module.exports = mongoose.model('Scholarship', scholarshipSchema);

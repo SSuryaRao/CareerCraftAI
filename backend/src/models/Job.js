@@ -105,12 +105,28 @@ const jobSchema = new mongoose.Schema({
   }
 });
 
+// Text search index for full-text search
 jobSchema.index({ title: 'text', description: 'text', company: 'text', tags: 'text' });
+
+// Individual field indexes
 jobSchema.index({ postedAt: -1 });
 jobSchema.index({ company: 1 });
 jobSchema.index({ tags: 1 });
 jobSchema.index({ location: 1 });
+
+// Compound indexes for common queries (OPTIMIZED)
+// Most common: active jobs sorted by date
 jobSchema.index({ isActive: 1, postedAt: -1 });
+// For recommendations: active + recent (60 days filter)
+jobSchema.index({ isActive: 1, postedAt: -1, featured: -1 });
+// For filtering by job type and experience level
+jobSchema.index({ isActive: 1, jobType: 1, experienceLevel: 1 });
+// For location-based filtering
+jobSchema.index({ isActive: 1, location: 1, postedAt: -1 });
+// For tag-based filtering (common in recommendations)
+jobSchema.index({ isActive: 1, tags: 1, postedAt: -1 });
+// For featured jobs
+jobSchema.index({ isActive: 1, featured: -1, postedAt: -1 });
 
 jobSchema.pre('save', function(next) {
   if (this.isModified('tags')) {

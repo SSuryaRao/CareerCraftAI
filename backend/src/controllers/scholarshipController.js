@@ -3,6 +3,20 @@ const User = require('../models/User');
 const Resume = require('../models/Resume');
 const Scholarship = require('../models/Scholarship');
 
+// In-memory cache for recommendations (30 minutes TTL)
+const recommendationCache = new Map();
+const CACHE_TTL = 30 * 60 * 1000; // 30 minutes in milliseconds
+
+// Clean expired cache entries every 5 minutes
+setInterval(() => {
+  const now = Date.now();
+  for (const [key, value] of recommendationCache.entries()) {
+    if (now - value.timestamp > CACHE_TTL) {
+      recommendationCache.delete(key);
+    }
+  }
+}, 5 * 60 * 1000);
+
 /**
  * GET /api/scholarships - Get all scholarships with filters
  */
@@ -108,8 +122,29 @@ exports.getPersonalizedRecommendations = async (req, res) => {
 
     console.log(`🎯 Generating personalized recommendations for user: ${uid}`);
 
+    // Check cache first
+    const cacheKey = `scholarship_rec_${uid}`;
+    const cached = recommendationCache.get(cacheKey);
+    if (cached && (Date.now() - cached.timestamp < CACHE_TTL)) {
+      console.log(`✅ Returning cached recommendations for user: ${uid}`);
+      return res.json({
+        success: true,
+        data: cached.data,
+        meta: {
+          ...cached.meta,
+          fromCache: true,
+          cacheAge: Math.round((Date.now() - cached.timestamp) / 1000) + ' seconds'
+        }
+      });
+    }
+
+    console.time('Total Recommendation Time');
+
     // 1. Get user profile
+    console.time('Fetch User Profile');
     const user = await User.findOne({ firebaseUid: uid }).lean();
+    console.timeEnd('Fetch User Profile');
+
     if (!user) {
       return res.status(404).json({
         success: false,
@@ -118,6 +153,7 @@ exports.getPersonalizedRecommendations = async (req, res) => {
     }
 
     // 2. Get user's latest resume (if available)
+    console.time('Fetch Resume');
     const latestResume = await Resume.findOne({
       userId: uid,
       isActive: true,
@@ -126,9 +162,56 @@ exports.getPersonalizedRecommendations = async (req, res) => {
     .sort({ createdAt: -1 })
     .select('atsAnalysis extractedText createdAt')
     .lean();
+    console.timeEnd('Fetch Resume');
 
-    // 3. Get all active scholarships
-    const allScholarships = await Scholarship.find({ active: true }).lean();
+    // 3. Get relevant scholarships with smart filtering (OPTIMIZED)
+    console.time('Fetch Scholarships');
+
+    // Build smart filter based on user profile
+    const scholarshipFilter = { active: true };
+
+    // Pre-filter by domain if user has specified education/domain
+    if (user.profile?.domain) {
+      scholarshipFilter.$or = [
+        { domain: user.profile.domain },
+        { domain: 'General' },
+        { domain: { $exists: false } }
+      ];
+    }
+
+    // Pre-filter by category if we can infer from profile
+    if (user.profile?.education) {
+      const eduLower = user.profile.education.toLowerCase();
+      if (eduLower.includes('undergraduate') || eduLower.includes('ug') || eduLower.includes('bachelor')) {
+        scholarshipFilter.$or = scholarshipFilter.$or || [];
+        if (scholarshipFilter.$or.length === 0) {
+          scholarshipFilter.$or = [
+            { category: 'UG' },
+            { category: 'Merit-based' },
+            { category: { $exists: false } }
+          ];
+        }
+      } else if (eduLower.includes('postgraduate') || eduLower.includes('pg') || eduLower.includes('master')) {
+        scholarshipFilter.$or = scholarshipFilter.$or || [];
+        if (scholarshipFilter.$or.length === 0) {
+          scholarshipFilter.$or = [
+            { category: 'PG' },
+            { category: 'Research' },
+            { category: 'Merit-based' },
+            { category: { $exists: false } }
+          ];
+        }
+      }
+    }
+
+    // Fetch only top 30 most relevant scholarships (OPTIMIZED FROM FETCHING ALL)
+    const allScholarships = await Scholarship.find(scholarshipFilter)
+      .sort({ trending: -1, deadline: 1, createdAt: -1 }) // Prioritize trending and urgent
+      .limit(30) // MAJOR OPTIMIZATION: Only get 30 instead of all
+      .lean();
+
+    console.timeEnd('Fetch Scholarships');
+    console.log(`📊 Pre-filtered to ${allScholarships.length} scholarships (from filter: ${JSON.stringify(scholarshipFilter)})`);
 
     if (allScholarships.length === 0) {
       return res.json({
@@ -141,13 +224,25 @@ exports.getPersonalizedRecommendations = async (req, res) => {
       });
     }
 
-    // 4. Build AI prompt for personalized matching
+    // 4. Build AI prompt for personalized matching (OPTIMIZED)
+    console.time('Build AI Prompt');
     const prompt = buildMatchingPrompt(user, latestResume, allScholarships);
+    console.timeEnd('Build AI Prompt');
 
     console.log('🤖 Sending request to Vertex AI...');
+    console.time('AI Processing');
 
-    // 5. Call Vertex AI for matching
-    const aiResponse = await vertexAI.generateContent(prompt);
+    // 5. Call Vertex AI for matching with optimized config
+    const aiResponse = await vertexAI.generateContent(
+      prompt,
+      3, // retries
+      {
+        maxOutputTokens: 4096, // Reduced from default to speed up
+        temperature: 0.1 // Lower temperature for more consistent/faster responses
+      }
+    );
+
+    console.timeEnd('AI Processing');
 
     // 6. Parse AI response
     let matches = [];
@@ -289,21 +384,36 @@ exports.getPersonalizedRecommendations = async (req, res) => {
     }
 
     console.log(`✅ Generated ${recommendations.length} personalized recommendations`);
+    console.timeEnd('Total Recommendation Time');
+
+    // Prepare response data
+    const responseData = {
+      totalMatches: recommendations.length,
+      basedOnResume: !!latestResume,
+      resumeAnalyzedOn: latestResume?.createdAt,
+      generatedAt: new Date(),
+      userProfile: {
+        hasSkills: (user.skills?.length || 0) > 0,
+        hasCareerGoal: !!user.profile?.careerGoal,
+        hasEducation: !!user.profile?.education
+      },
+      scholarshipsAnalyzed: allScholarships.length,
+      fromCache: false
+    };
+
+    // Cache the results for future requests (OPTIMIZATION)
+    recommendationCache.set(cacheKey, {
+      data: recommendations,
+      meta: responseData,
+      timestamp: Date.now()
+    });
+
+    console.log(`💾 Cached recommendations for user: ${uid} (TTL: ${CACHE_TTL / 1000}s)`);
 
     res.json({
       success: true,
       data: recommendations,
-      meta: {
-        totalMatches: recommendations.length,
-        basedOnResume: !!latestResume,
-        resumeAnalyzedOn: latestResume?.createdAt,
-        generatedAt: new Date(),
-        userProfile: {
-          hasSkills: (user.skills?.length || 0) > 0,
-          hasCareerGoal: !!user.profile?.careerGoal,
-          hasEducation: !!user.profile?.education
-        }
-      }
+      meta: responseData
     });
 
   } catch (error) {
@@ -317,70 +427,69 @@ exports.getPersonalizedRecommendations = async (req, res) => {
 };
 
 /**
- * Build AI matching prompt
+ * Build AI matching prompt (OPTIMIZED - Shorter & More Focused)
  */
 function buildMatchingPrompt(user, resume, scholarships) {
-  let prompt = `You are an expert scholarship advisor for Indian students. Match scholarships to this student profile.
+  // Simplified user profile (only essential info)
+  const profile = {
+    education: user.profile?.education || 'Not specified',
+    skills: user.skills?.slice(0, 10).map(s => s.name).join(', ') || 'Not specified',
+    careerGoal: user.profile?.careerGoal || 'Not specified',
+    domain: user.profile?.domain || 'General'
+  };
 
-## Student Profile:
-- Name: ${user.name}
-- Education: ${user.profile?.education || 'Not specified'}
-- Skills: ${user.skills?.map(s => `${s.name} (${s.level})`).join(', ') || 'Not specified'}
-- Career Goal: ${user.profile?.careerGoal || 'Not specified'}
-- Interests: ${user.profile?.interests?.join(', ') || 'Not specified'}
-- Location: ${user.profile?.location || 'India'}
-`;
+  // Simplified resume (only key points)
+  const resumeInfo = resume ? {
+    score: resume.atsAnalysis?.overallScore || 'N/A',
+    topSkills: resume.atsAnalysis?.keywordAnalysis?.found?.slice(0, 8).join(', ') || 'N/A',
+    strengths: resume.atsAnalysis?.strengths?.slice(0, 3).join(', ') || 'N/A'
+  } : null;
 
-  if (resume) {
-    prompt += `\n## Resume Analysis:
-- ATS Score: ${resume.atsAnalysis?.overallScore || 'N/A'}/100
-- Keywords Score: ${resume.atsAnalysis?.scores?.keywords || 'N/A'}/100
-- Skills Score: ${resume.atsAnalysis?.scores?.skills || 'N/A'}/100
-- Key Skills Found: ${resume.atsAnalysis?.keywordAnalysis?.found?.slice(0, 10).join(', ') || 'N/A'}
-- Strengths: ${resume.atsAnalysis?.strengths?.join(', ') || 'N/A'}
-- Resume Extract: ${resume.extractedText?.substring(0, 400)}...
-`;
-  } else {
-    prompt += `\n## Resume: Not uploaded yet (match based on profile only)
-`;
+  // Simplified scholarships (only essential fields)
+  const simplifiedScholarships = scholarships.map((s, i) => ({
+    id: s._id,
+    title: s.title,
+    provider: s.provider,
+    amount: s.amount,
+    category: s.category,
+    domain: s.domain,
+    eligibility: s.eligibility.substring(0, 100), // Truncate long eligibility
+    deadline: new Date(s.deadline).toLocaleDateString('en-IN')
+  }));
+
+  // OPTIMIZED PROMPT - Much shorter!
+  let prompt = `You are a scholarship advisor. Match scholarships to student.
+
+STUDENT:
+Education: ${profile.education}
+Skills: ${profile.skills}
+Goal: ${profile.careerGoal}
+Domain: ${profile.domain}`;
+
+  if (resumeInfo) {
+    prompt += `
+ATS Score: ${resumeInfo.score}/100
+Top Skills: ${resumeInfo.topSkills}`;
   }
 
-  prompt += `\n## Available Scholarships (${scholarships.length} total):
-${scholarships.slice(0, 50).map((s, i) => `
-${i + 1}. ${s.title}
-   Provider: ${s.provider}
-   Amount: ${s.amount}
-   Category: ${s.category}
-   Domain: ${s.domain}
-   Eligibility: ${s.eligibility}
-   Deadline: ${new Date(s.deadline).toLocaleDateString('en-IN')}
-   ID: ${s._id}
-`).join('')}
+  prompt += `
 
-${scholarships.length > 50 ? `... and ${scholarships.length - 50} more scholarships` : ''}
+SCHOLARSHIPS (${simplifiedScholarships.length}):
+${JSON.stringify(simplifiedScholarships, null, 0)}
 
-## Your Task:
-Analyze the student profile${resume ? ' and resume' : ''}, then rank scholarships by relevance.
+TASK: Return top 8 matches as JSON array. ULTRA-SHORT strings!
 
-**CRITICAL INSTRUCTIONS**:
-1. Return ONLY a valid JSON array (no markdown, no explanations)
-2. Start with [ and end with ]
-3. Keep ALL strings SHORT to avoid truncation
+FORMAT:
+[{"scholarshipId":"id","matchScore":85,"matchReason":"CSE + Python match","eligibilityStatus":"Eligible","actionSteps":["Apply","Get docs"],"priority":"High"}]
 
-Example format:
-[{"scholarshipId":"id1","matchScore":95,"matchReason":"Perfect for CSE with Python","eligibilityStatus":"Eligible","actionSteps":["Update resume","Apply now","Prepare docs"],"priority":"High"}]
-
-**STRICT Requirements**:
-- Return ONLY top 8 best matches (matchScore >= 60)
-- Sort by matchScore descending
-- matchReason: MAX 60 characters (ultra-short!)
-- eligibilityStatus: "Eligible" | "MayBeEligible" | "CheckDetails"
-- priority: "High" | "Medium" | "Low"
-- actionSteps: MAX 3 steps, each MAX 40 characters
-- Use exact scholarshipId from list above
-- NO markdown blocks (no \`\`\`)
-- NO trailing commas
-`;
+RULES:
+- matchScore 0-100, recommend if >=60
+- matchReason MAX 50 chars
+- eligibilityStatus: Eligible|MayBeEligible|CheckDetails
+- priority: High|Medium|Low
+- actionSteps: MAX 2, each MAX 30 chars
+- NO markdown, NO explanations
+- Use exact scholarshipId from list`;
 
   return prompt;
 }

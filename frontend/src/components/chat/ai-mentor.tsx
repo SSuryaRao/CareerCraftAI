@@ -68,13 +68,15 @@ const mentorPersonas: MentorPersona[] = [
 ]
 
 const languages = [
-  { code: 'en', name: 'English', flag: '🇺🇸' },
-  { code: 'hi', name: 'हिंदी', flag: '🇮🇳' },
-  { code: 'ta', name: 'தமிழ்', flag: '🇮🇳' },
-  { code: 'te', name: 'తెలుగు', flag: '🇮🇳' },
-  { code: 'bn', name: 'বাংলা', flag: '🇮🇳' },
-  { code: 'mr', name: 'मराठी', flag: '🇮🇳' },
-  { code: 'or', name: 'ଓଡ଼ିଆ', flag: '🇮🇳' },
+  { code: 'en', name: 'English', flag: '🇺🇸', ttsSupported: true },
+  { code: 'hi', name: 'हिंदी (Hindi)', flag: '🇮🇳', ttsSupported: true },
+  { code: 'ta', name: 'தமிழ் (Tamil)', flag: '🇮🇳', ttsSupported: true },
+  { code: 'te', name: 'తెలుగు (Telugu)', flag: '🇮🇳', ttsSupported: true },
+  { code: 'bn', name: 'বাংলা (Bengali)', flag: '🇮🇳', ttsSupported: true },
+  { code: 'mr', name: 'मराठी (Marathi)', flag: '🇮🇳', ttsSupported: true },
+  { code: 'gu', name: 'ગુજરાતી (Gujarati)', flag: '🇮🇳', ttsSupported: true },
+  { code: 'kn', name: 'ಕನ್ನಡ (Kannada)', flag: '🇮🇳', ttsSupported: true },
+  { code: 'ml', name: 'മലയാളം (Malayalam)', flag: '🇮🇳', ttsSupported: true },
 ]
 
 const quickActions = [
@@ -175,8 +177,9 @@ export default function AIMentor() {
       setIsRecording(false)
     },
     onSpeechError: (error) => {
+      // Only log error, don't automatically show to user
+      // Errors will be handled by individual button click handlers
       console.error('Voice error:', error)
-      setError(`Voice error: ${error.message}`)
       setIsRecording(false)
       setIsSpeaking(false)
     }
@@ -296,9 +299,9 @@ export default function AIMentor() {
         await voiceChat.startRecording()
         setIsRecording(true)
         setError(null)
-      } catch (error) {
+      } catch (error: any) {
         console.error('Failed to start recording:', error)
-        setError('Failed to start voice recording')
+        setError(`Voice input error: ${error.message || 'Microphone permission denied or not available'}`)
       }
     }
   }
@@ -312,11 +315,12 @@ export default function AIMentor() {
       // Start speech with Google Cloud TTS
       try {
         setIsSpeaking(true)
+        setError(null)
         await voiceChat.speak(content)
         // isSpeaking will be set to false by the hook when playback ends
-      } catch (error) {
+      } catch (error: any) {
         console.error('Speech error:', error)
-        setError('Failed to generate speech')
+        setError(`Voice output error: ${error.message || 'Failed to generate speech. Please try again.'}`)
         setIsSpeaking(false)
       }
     }
@@ -492,6 +496,8 @@ export default function AIMentor() {
                               </button>
                               <button
                                 onClick={() => handleSpeakMessage(message.content)}
+                                title={isSpeaking ? "Stop speaking" : "Click to hear this message"}
+                                aria-label={isSpeaking ? "Stop speaking" : "Speak this message"}
                                 className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-white/10 transition-colors text-gray-500 hover:text-gray-700 dark:text-white/60 dark:hover:text-white"
                               >
                                 {isSpeaking ? <VolumeX className="w-3.5 h-3.5" /> : <Volume2 className="w-3.5 h-3.5" />}
@@ -597,9 +603,11 @@ export default function AIMentor() {
                   size="sm"
                   onClick={handleVoiceToggle}
                   disabled={isTyping}
-                  className={`absolute right-3 bottom-3 h-8 w-8 p-0 rounded-xl ${
+                  title={isRecording ? "Stop recording" : "Click to record voice message"}
+                  aria-label={isRecording ? "Stop recording" : "Record voice message"}
+                  className={`absolute right-3 bottom-3 h-8 w-8 p-0 rounded-xl transition-all ${
                     isRecording
-                      ? 'text-red-400 bg-red-500/20 hover:bg-red-500/30'
+                      ? 'text-red-400 bg-red-500/20 hover:bg-red-500/30 animate-pulse'
                       : 'text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-white/10'
                   }`}
                 >

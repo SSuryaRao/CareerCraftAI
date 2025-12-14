@@ -44,6 +44,7 @@ class TextToSpeechService {
 
   /**
    * Get voice configuration for language
+   * FIXED: Only include Google Cloud supported languages + fallback logic
    */
   getVoiceConfig(language = 'en-IN', voiceGender = 'FEMALE') {
     const voiceConfigs = {
@@ -106,17 +107,22 @@ class TextToSpeechService {
         languageCode: 'ml-IN',
         name: 'ml-IN-Wavenet-A', // Malayalam Female
         ssmlGender: 'FEMALE'
-      },
-      'or-IN': {
-        languageCode: 'or-IN',
-        name: 'or-IN-Standard-A', // Odia Female (Note: Check Google Cloud for availability)
-        ssmlGender: 'FEMALE'
       }
+      // NOTE: Odia (or-IN) is NOT supported by Google Cloud TTS
+      // Removed to prevent 500 errors
     };
 
     // Try to get specific voice with gender
     const key = voiceGender === 'MALE' ? `${language}-male` : language;
-    return voiceConfigs[key] || voiceConfigs['en-IN'];
+    const voiceConfig = voiceConfigs[key] || voiceConfigs[language];
+
+    // Fallback to English if language not supported
+    if (!voiceConfig) {
+      console.warn(`⚠️ Language ${language} not supported for TTS, falling back to English`);
+      return voiceConfigs['en-IN'];
+    }
+
+    return voiceConfig;
   }
 
   /**
@@ -183,10 +189,17 @@ class TextToSpeechService {
 
   /**
    * Convert text to speech and return base64
+   * FIXED: Ensure clean base64 encoding without whitespace
    */
   async textToSpeechBase64(text, language = 'en-IN', voiceGender = 'FEMALE', speakingRate = 1.0, pitch = 0.0) {
     const audioBuffer = await this.textToSpeech(text, language, voiceGender, speakingRate, pitch);
-    return audioBuffer.toString('base64');
+
+    // Convert to base64 and ensure it's clean (no newlines, spaces, or special chars)
+    const base64Audio = audioBuffer.toString('base64').replace(/[\r\n\s]/g, '');
+
+    console.log(`✅ Base64 audio generated: ${base64Audio.length} characters (first 50: ${base64Audio.substring(0, 50)}...)`);
+
+    return base64Audio;
   }
 
   /**
@@ -224,19 +237,20 @@ class TextToSpeechService {
 
   /**
    * Get available Indian language voices
+   * FIXED: Only include Google Cloud supported languages
    */
   getIndianVoices() {
     return [
-      { code: 'en-IN', name: 'English (India)', voices: ['Neural2-A (Female)', 'Neural2-B (Male)'] },
-      { code: 'hi-IN', name: 'हिंदी (Hindi)', voices: ['Neural2-A (Female)', 'Neural2-B (Male)'] },
-      { code: 'ta-IN', name: 'தமிழ் (Tamil)', voices: ['Wavenet-A (Female)', 'Wavenet-B (Male)'] },
-      { code: 'te-IN', name: 'తెలుగు (Telugu)', voices: ['Standard-A (Female)', 'Standard-B (Male)'] },
-      { code: 'bn-IN', name: 'বাংলা (Bengali)', voices: ['Standard-A (Female)', 'Standard-B (Male)'] },
-      { code: 'mr-IN', name: 'मराठी (Marathi)', voices: ['Wavenet-A (Female)', 'Wavenet-B (Male)'] },
-      { code: 'gu-IN', name: 'ગુજરાતી (Gujarati)', voices: ['Standard-A (Female)', 'Standard-B (Male)'] },
-      { code: 'kn-IN', name: 'ಕನ್ನಡ (Kannada)', voices: ['Wavenet-A (Female)'] },
-      { code: 'ml-IN', name: 'മലയാളം (Malayalam)', voices: ['Wavenet-A (Female)'] },
-      { code: 'or-IN', name: 'ଓଡ଼ିଆ (Odia)', voices: ['Standard-A (Female)'] }
+      { code: 'en-IN', name: 'English (India)', voices: ['Neural2-A (Female)', 'Neural2-B (Male)'], ttsSupported: true },
+      { code: 'hi-IN', name: 'हिंदी (Hindi)', voices: ['Neural2-A (Female)', 'Neural2-B (Male)'], ttsSupported: true },
+      { code: 'ta-IN', name: 'தமிழ் (Tamil)', voices: ['Wavenet-A (Female)', 'Wavenet-B (Male)'], ttsSupported: true },
+      { code: 'te-IN', name: 'తెలుగు (Telugu)', voices: ['Standard-A (Female)', 'Standard-B (Male)'], ttsSupported: true },
+      { code: 'bn-IN', name: 'বাংলা (Bengali)', voices: ['Standard-A (Female)', 'Standard-B (Male)'], ttsSupported: true },
+      { code: 'mr-IN', name: 'मराठी (Marathi)', voices: ['Wavenet-A (Female)', 'Wavenet-B (Male)'], ttsSupported: true },
+      { code: 'gu-IN', name: 'ગુજરાતી (Gujarati)', voices: ['Standard-A (Female)', 'Standard-B (Male)'], ttsSupported: true },
+      { code: 'kn-IN', name: 'ಕನ್ನಡ (Kannada)', voices: ['Wavenet-A (Female)'], ttsSupported: true },
+      { code: 'ml-IN', name: 'മലയാളം (Malayalam)', voices: ['Wavenet-A (Female)'], ttsSupported: true }
+      // Odia (or-IN) removed - NOT supported by Google Cloud Text-to-Speech
     ];
   }
 

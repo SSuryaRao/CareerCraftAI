@@ -108,20 +108,27 @@ export const useVoiceChat = ({
       const base64Audio = await blobToBase64(audioBlob);
 
       // Call Speech-to-Text API
-      const result = await mentorApi.speechToText({
+      const response = await mentorApi.speechToText({
         audio: base64Audio,
         language,
         encoding: 'WEBM_OPUS',
         sampleRate: 48000
       });
 
-      console.log('✅ Transcription complete:', result.text);
+      // Extract data from API response
+      if (!response.success || !response.data) {
+        throw new Error('Failed to transcribe audio');
+      }
 
-      setTranscriptionText(result.text);
-      setTranscriptionConfidence(result.confidence);
+      const { text, confidence } = response.data;
+
+      console.log('✅ Transcription complete:', text);
+
+      setTranscriptionText(text);
+      setTranscriptionConfidence(confidence);
 
       if (onTranscriptionComplete) {
-        onTranscriptionComplete(result.text, result.confidence);
+        onTranscriptionComplete(text, confidence);
       }
     } catch (error) {
       console.error('❌ Transcription error:', error);
@@ -172,7 +179,7 @@ export const useVoiceChat = ({
       stopSpeaking();
 
       // Call Text-to-Speech API
-      const result = await mentorApi.textToSpeech({
+      const response = await mentorApi.textToSpeech({
         text,
         language,
         voiceGender,
@@ -180,10 +187,15 @@ export const useVoiceChat = ({
         pitch
       });
 
+      // Extract data from API response
+      if (!response.success || !response.data || !response.data.audio) {
+        throw new Error('Failed to generate speech audio');
+      }
+
       console.log('✅ Speech generated, playing audio...');
 
       // Convert base64 to blob URL
-      const audioBlob = base64ToBlob(result.audio, 'audio/mp3');
+      const audioBlob = base64ToBlob(response.data.audio, 'audio/mp3');
       const audioUrl = URL.createObjectURL(audioBlob);
 
       setCurrentAudioUrl(audioUrl);
@@ -226,17 +238,37 @@ export const useVoiceChat = ({
 
   /**
    * Convert base64 to blob
+   * FIXED: Better error handling and base64 cleanup
    */
-  function base64ToBlob(base64: string, mimeType: string): Blob {
-    const byteCharacters = atob(base64);
-    const byteNumbers = new Array(byteCharacters.length);
+  function base64ToBlob(base64: string | undefined | null, mimeType: string): Blob {
+    try {
+      // Validate input
+      if (!base64 || typeof base64 !== 'string') {
+        throw new Error('Invalid base64 input: received ' + typeof base64);
+      }
 
-    for (let i = 0; i < byteCharacters.length; i++) {
-      byteNumbers[i] = byteCharacters.charCodeAt(i);
+      // Clean the base64 string (remove whitespace and newlines)
+      const cleanBase64 = base64.replace(/[\r\n\s]/g, '');
+
+      // Validate cleaned base64
+      if (cleanBase64.length === 0) {
+        throw new Error('Base64 string is empty after cleaning');
+      }
+
+      // Decode base64 to binary string
+      const byteCharacters = atob(cleanBase64);
+      const byteNumbers = new Array(byteCharacters.length);
+
+      for (let i = 0; i < byteCharacters.length; i++) {
+        byteNumbers[i] = byteCharacters.charCodeAt(i);
+      }
+
+      const byteArray = new Uint8Array(byteNumbers);
+      return new Blob([byteArray], { type: mimeType });
+    } catch (error) {
+      console.error('❌ Error converting base64 to blob:', error);
+      throw new Error('Failed to decode audio data. Invalid base64 format.');
     }
-
-    const byteArray = new Uint8Array(byteNumbers);
-    return new Blob([byteArray], { type: mimeType });
   }
 
   /**

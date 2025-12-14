@@ -382,7 +382,7 @@ exports.textToSpeech = async (req, res) => {
 
     console.log(`🔊 Text-to-Speech request: ${text.substring(0, 50)}... (${language}, ${voiceGender})`);
 
-    // Generate audio
+    // Generate audio (with fallback to English if language not supported)
     const audioBase64 = await ttsService.textToSpeechBase64(text, language, voiceGender, speakingRate, pitch);
 
     res.json({
@@ -432,15 +432,17 @@ exports.speechToText = async (req, res) => {
     // Convert base64 to buffer
     const audioBuffer = Buffer.from(audio, 'base64');
 
-    // Transcribe audio
-    const result = await sttService.transcribeAudio(audioBuffer, language, sampleRate, encoding);
+    // Transcribe audio - FIXED: Correct parameter order (audioBuffer, encoding, sampleRate, language, domain)
+    const result = await sttService.transcribeAudio(audioBuffer, encoding, sampleRate, language, null);
+
+    console.log(`✅ Transcription successful: "${result.transcript}" (confidence: ${(result.confidence * 100).toFixed(2)}%)`);
 
     res.json({
       success: true,
       data: {
-        text: result.text,
+        text: result.transcript, // FIXED: Use 'transcript' instead of 'text'
         confidence: result.confidence,
-        language: result.language
+        language: language
       }
     });
 

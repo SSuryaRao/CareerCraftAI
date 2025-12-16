@@ -286,11 +286,27 @@ export default function ShippingPolicy() {
             </div>
           </motion.div>
 
-          {/* Contact Information */}
+          {/* Compliance Note */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.9 }}
+            className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-8 mt-8 border border-gray-200 dark:border-gray-700"
+          >
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">Compliance Statement</h2>
+            <p className="text-gray-600 dark:text-gray-300 leading-relaxed">
+              As a digital service provider, CareerCraft AI does not engage in physical product shipping or delivery.
+              All services are delivered electronically in compliance with Indian e-commerce regulations and Consumer Protection
+              (E-Commerce) Rules, 2020. Our service delivery practices adhere to IT Act 2000 and related guidelines for
+              digital service provision.
+            </p>
+          </motion.div>
+
+          {/* Contact Information */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 1.0 }}
             className="bg-gradient-to-br from-orange-500/10 to-amber-500/10 rounded-2xl shadow-lg p-8 mt-8 border border-orange-200 dark:border-amber-500/30"
           >
             <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">Need Assistance?</h2>
@@ -318,7 +334,7 @@ export default function ShippingPolicy() {
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 1.0 }}
+            transition={{ duration: 0.6, delay: 1.1 }}
             className="text-center mt-12"
           >
             <Link

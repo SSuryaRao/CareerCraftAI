@@ -248,11 +248,104 @@ export default function TermsOfService() {
             ))}
           </div>
 
-          {/* Additional Sections */}
+          {/* Payment Terms - Razorpay Specific */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.9 }}
+            className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-8 mt-8 border border-gray-200 dark:border-gray-700"
+          >
+            <div className="flex items-start space-x-4 mb-6">
+              <div className="w-12 h-12 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center flex-shrink-0">
+                <CreditCard className="w-6 h-6 text-white" />
+              </div>
+              <div>
+                <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+                  Payment Processing Terms
+                </h2>
+              </div>
+            </div>
+
+            <div className="space-y-6 pl-16">
+              <div>
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+                  Payment Gateway
+                </h3>
+                <p className="text-gray-600 dark:text-gray-300 leading-relaxed">
+                  All payments are processed through Razorpay, our authorized payment aggregator. By making a payment, you agree to
+                  Razorpay's terms and conditions. We use PCI DSS compliant payment processing to ensure the security of your payment information.
+                </p>
+              </div>
+
+              <div>
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+                  Transaction Authorization
+                </h3>
+                <p className="text-gray-600 dark:text-gray-300 leading-relaxed">
+                  By providing payment information, you authorize us to charge the specified amount to your payment method. You represent
+                  that you are authorized to use the payment method provided and that the information is accurate and complete.
+                </p>
+              </div>
+
+              <div>
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+                  Chargeback Policy
+                </h3>
+                <p className="text-gray-600 dark:text-gray-300 leading-relaxed">
+                  Before initiating a chargeback with your bank or card issuer, please contact our support team to resolve any billing
+                  disputes. Chargebacks may result in immediate suspension of your account pending investigation. We reserve the right to
+                  dispute fraudulent or unjustified chargebacks and may pursue collection for valid charges.
+                </p>
+              </div>
+
+              <div>
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+                  Payment Failures
+                </h3>
+                <p className="text-gray-600 dark:text-gray-300 leading-relaxed">
+                  If a payment fails due to insufficient funds, expired card, or other reasons, we will notify you and may attempt to
+                  process the payment again. Repeated payment failures may result in suspension of services until valid payment is received.
+                </p>
+              </div>
+
+              <div>
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+                  Taxes and Fees
+                </h3>
+                <p className="text-gray-600 dark:text-gray-300 leading-relaxed">
+                  All prices are exclusive of applicable taxes (GST, etc.) unless otherwise stated. You are responsible for all taxes
+                  associated with your purchase. Payment processing fees, if any, will be disclosed before completing the transaction.
+                </p>
+              </div>
+            </div>
+          </motion.div>
+
+          {/* Compliance and KYC */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 1.0 }}
+            className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-8 mt-8 border border-gray-200 dark:border-gray-700"
+          >
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">Regulatory Compliance</h2>
+            <div className="space-y-4">
+              <p className="text-gray-600 dark:text-gray-300 leading-relaxed">
+                We comply with all applicable Indian laws including Information Technology Act 2000, Payment and Settlement Systems Act 2007,
+                RBI guidelines, and NPCI regulations. We may require additional verification or KYC (Know Your Customer) information to
+                comply with Anti-Money Laundering (AML) regulations.
+              </p>
+              <p className="text-gray-600 dark:text-gray-300 leading-relaxed">
+                By using our payment services, you agree to provide accurate information and documentation as required for compliance purposes.
+                Failure to provide required information may result in suspension or termination of services.
+              </p>
+            </div>
+          </motion.div>
+
+          {/* Additional Sections */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 1.1 }}
             className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-8 mt-8 border border-gray-200 dark:border-gray-700"
           >
             <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">Data Protection and Privacy</h2>
@@ -273,7 +366,7 @@ export default function TermsOfService() {
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 1.0 }}
+            transition={{ duration: 0.6, delay: 1.2 }}
             className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-8 mt-8 border border-gray-200 dark:border-gray-700"
           >
             <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">Severability</h2>
@@ -287,7 +380,7 @@ export default function TermsOfService() {
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 1.1 }}
+            transition={{ duration: 0.6, delay: 1.3 }}
             className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-8 mt-8 border border-gray-200 dark:border-gray-700"
           >
             <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">Entire Agreement</h2>
@@ -302,7 +395,7 @@ export default function TermsOfService() {
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 1.2 }}
+            transition={{ duration: 0.6, delay: 1.4 }}
             className="bg-gradient-to-br from-indigo-500/10 to-purple-500/10 rounded-2xl shadow-lg p-8 mt-8 border border-indigo-200 dark:border-purple-500/30"
           >
             <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">Questions About These Terms?</h2>
@@ -330,7 +423,7 @@ export default function TermsOfService() {
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 1.3 }}
+            transition={{ duration: 0.6, delay: 1.5 }}
             className="text-center mt-12"
           >
             <Link

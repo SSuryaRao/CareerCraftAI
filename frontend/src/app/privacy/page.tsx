@@ -260,11 +260,75 @@ export default function PrivacyPolicy() {
             </p>
           </motion.div>
 
-          {/* Contact Information */}
+          {/* Data Retention */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 1.1 }}
+            className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-8 mt-8 border border-gray-200 dark:border-gray-700"
+          >
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">Data Retention</h2>
+            <p className="text-gray-600 dark:text-gray-300 leading-relaxed mb-4">
+              We retain your personal information only for as long as necessary to fulfill the purposes for which it was collected,
+              including to satisfy any legal, accounting, or reporting requirements.
+            </p>
+            <p className="text-gray-600 dark:text-gray-300 leading-relaxed">
+              Account data is retained for the duration of your active account plus 90 days after account closure.
+              Payment and transaction records are retained for 7 years as required by Indian tax and financial regulations.
+              You may request deletion of your data at any time, subject to our legal obligations.
+            </p>
+          </motion.div>
+
+          {/* Grievance Redressal */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 1.2 }}
+            className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-8 mt-8 border border-gray-200 dark:border-gray-700"
+          >
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">Grievance Redressal Mechanism</h2>
+            <p className="text-gray-600 dark:text-gray-300 leading-relaxed mb-6">
+              In accordance with Information Technology Act 2000 and rules made thereunder, we have appointed a Grievance Officer
+              to address your concerns regarding data processing, privacy, and security.
+            </p>
+            <div className="bg-blue-50 dark:bg-blue-900/20 rounded-xl p-6 border border-blue-200 dark:border-blue-800">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Grievance Officer</h3>
+              <div className="space-y-2 text-gray-700 dark:text-gray-300">
+                <p><strong>Name:</strong> Grievance Officer, CareerCraft AI</p>
+                <p><strong>Email:</strong> grievance@careercraft.ai</p>
+                <p><strong>Address:</strong> Koramangala, Bangalore, Karnataka 560034, India</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400 mt-4">
+                  The Grievance Officer shall respond to your grievance within 48 hours of receipt and shall resolve the issue within 30 days.
+                </p>
+              </div>
+            </div>
+          </motion.div>
+
+          {/* Data Protection Officer */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 1.3 }}
+            className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-8 mt-8 border border-gray-200 dark:border-gray-700"
+          >
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">Data Protection Officer</h2>
+            <p className="text-gray-600 dark:text-gray-300 leading-relaxed mb-6">
+              For matters specifically related to data protection and GDPR compliance, you may contact our Data Protection Officer:
+            </p>
+            <div className="bg-purple-50 dark:bg-purple-900/20 rounded-xl p-6 border border-purple-200 dark:border-purple-800">
+              <div className="space-y-2 text-gray-700 dark:text-gray-300">
+                <p><strong>Data Protection Officer (DPO)</strong></p>
+                <p><strong>Email:</strong> dpo@careercraft.ai</p>
+                <p><strong>Address:</strong> Koramangala, Bangalore, Karnataka 560034, India</p>
+              </div>
+            </div>
+          </motion.div>
+
+          {/* Contact Information */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 1.4 }}
             className="bg-gradient-to-br from-blue-500/10 to-purple-500/10 rounded-2xl shadow-lg p-8 mt-8 border border-blue-200 dark:border-purple-500/30"
           >
             <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">Contact Us</h2>
@@ -281,6 +345,12 @@ export default function PrivacyPolicy() {
               </div>
               <div className="flex items-center space-x-3 text-gray-700 dark:text-gray-300">
                 <Mail className="w-5 h-5 text-blue-600" />
+                <a href="mailto:grievance@careercraft.ai" className="hover:text-blue-600 transition-colors">
+                  grievance@careercraft.ai
+                </a>
+              </div>
+              <div className="flex items-center space-x-3 text-gray-700 dark:text-gray-300">
+                <Mail className="w-5 h-5 text-blue-600" />
                 <span>hello@careercraft.ai</span>
               </div>
             </div>
@@ -290,7 +360,7 @@ export default function PrivacyPolicy() {
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 1.2 }}
+            transition={{ duration: 0.6, delay: 1.5 }}
             className="text-center mt-12"
           >
             <Link

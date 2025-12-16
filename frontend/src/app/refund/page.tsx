@@ -232,11 +232,30 @@ export default function RefundPolicy() {
             ))}
           </div>
 
-          {/* Contact Information */}
+          {/* Compliance Information */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.8 }}
+            className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-8 mt-8 border border-gray-200 dark:border-gray-700"
+          >
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">Regulatory Compliance</h2>
+            <p className="text-gray-600 dark:text-gray-300 leading-relaxed mb-4">
+              Our refund and cancellation policies comply with Indian consumer protection laws, RBI guidelines for payment aggregators,
+              and applicable e-commerce regulations. All refunds are processed in accordance with the Payment and Settlement Systems Act 2007
+              and Consumer Protection Act 2019.
+            </p>
+            <p className="text-gray-600 dark:text-gray-300 leading-relaxed">
+              Refunds are processed through Razorpay, our authorized payment aggregator, ensuring secure and compliant transaction handling.
+              Processing times may vary based on your bank or payment provider's policies.
+            </p>
+          </motion.div>
+
+          {/* Contact Information */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.9 }}
             className="bg-gradient-to-br from-green-500/10 to-blue-500/10 rounded-2xl shadow-lg p-8 mt-8 border border-green-200 dark:border-blue-500/30"
           >
             <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">Need Help?</h2>
@@ -264,7 +283,7 @@ export default function RefundPolicy() {
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.9 }}
+            transition={{ duration: 0.6, delay: 1.0 }}
             className="text-center mt-12"
           >
             <Link

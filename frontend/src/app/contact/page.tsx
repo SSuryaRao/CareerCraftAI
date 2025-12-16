@@ -2,7 +2,7 @@
 
 import { motion } from 'framer-motion'
 import Link from 'next/link'
-import { Mail, Phone, MapPin, Clock, Send, MessageSquare, HeadphonesIcon, ArrowLeft } from 'lucide-react'
+import { Mail, Phone, MapPin, Clock, Send, MessageSquare, HeadphonesIcon, ArrowLeft, Shield, Lock } from 'lucide-react'
 import { useState } from 'react'
 
 export default function ContactUs() {
@@ -44,7 +44,8 @@ export default function ContactUs() {
       details: [
         { label: "General Inquiries", value: "hello@careercraft.ai" },
         { label: "Support", value: "support@careercraft.ai" },
-        { label: "Refunds", value: "refunds@careercraft.ai" }
+        { label: "Refunds", value: "refunds@careercraft.ai" },
+        { label: "Grievance", value: "grievance@careercraft.ai" }
       ]
     },
     {
@@ -362,11 +363,96 @@ export default function ContactUs() {
             </div>
           </motion.div>
 
+          {/* Grievance Officer & DPO Section */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+            {/* Grievance Officer */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.7 }}
+              className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-8 border border-gray-200 dark:border-gray-700"
+            >
+              <div className="flex items-center space-x-4 mb-6">
+                <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-600 rounded-xl flex items-center justify-center">
+                  <Shield className="w-6 h-6 text-white" />
+                </div>
+                <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Grievance Officer</h2>
+              </div>
+              <div className="bg-purple-50 dark:bg-purple-900/20 rounded-xl p-6 border border-purple-200 dark:border-purple-800">
+                <p className="text-gray-600 dark:text-gray-300 mb-4">
+                  For complaints regarding data privacy, security, or any service-related issues:
+                </p>
+                <div className="space-y-3">
+                  <div>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">Name</p>
+                    <p className="text-gray-900 dark:text-white font-medium">Grievance Officer, CareerCraft AI</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">Email</p>
+                    <a href="mailto:grievance@careercraft.ai" className="text-purple-600 dark:text-purple-400 hover:underline">
+                      grievance@careercraft.ai
+                    </a>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">Address</p>
+                    <p className="text-gray-900 dark:text-white">Koramangala, Bangalore, Karnataka 560034, India</p>
+                  </div>
+                  <div className="mt-4 pt-4 border-t border-purple-200 dark:border-purple-800">
+                    <p className="text-xs text-gray-600 dark:text-gray-400">
+                      Response time: Within 48 hours | Resolution time: Within 30 days
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+
+            {/* Data Protection Officer */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.8 }}
+              className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-8 border border-gray-200 dark:border-gray-700"
+            >
+              <div className="flex items-center space-x-4 mb-6">
+                <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-600 rounded-xl flex items-center justify-center">
+                  <Lock className="w-6 h-6 text-white" />
+                </div>
+                <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Data Protection Officer</h2>
+              </div>
+              <div className="bg-pink-50 dark:bg-pink-900/20 rounded-xl p-6 border border-pink-200 dark:border-pink-800">
+                <p className="text-gray-600 dark:text-gray-300 mb-4">
+                  For matters related to data protection and GDPR compliance:
+                </p>
+                <div className="space-y-3">
+                  <div>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">Designation</p>
+                    <p className="text-gray-900 dark:text-white font-medium">Data Protection Officer (DPO)</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">Email</p>
+                    <a href="mailto:dpo@careercraft.ai" className="text-pink-600 dark:text-pink-400 hover:underline">
+                      dpo@careercraft.ai
+                    </a>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">Address</p>
+                    <p className="text-gray-900 dark:text-white">Koramangala, Bangalore, Karnataka 560034, India</p>
+                  </div>
+                  <div className="mt-4 pt-4 border-t border-pink-200 dark:border-pink-800">
+                    <p className="text-xs text-gray-600 dark:text-gray-400">
+                      Contact for: Data subject rights, consent withdrawal, data deletion requests
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+
           {/* Back to Home Button */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.7 }}
+            transition={{ duration: 0.6, delay: 0.9 }}
             className="text-center"
           >
             <Link

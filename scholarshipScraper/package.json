@@ -12,6 +12,7 @@
     "axios": "^1.6.0",
     "cheerio": "^1.0.0-rc.12",
     "mongodb": "^6.3.0",
+    "rss-parser": "^3.13.0",
     "scraperapi-sdk": "^1.0.6"
   },
   "engines": {

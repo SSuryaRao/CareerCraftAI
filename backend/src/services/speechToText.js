@@ -7,7 +7,7 @@ class SpeechToTextService {
     this.clientV2 = null;
     this.projectId = process.env.GOOGLE_CLOUD_PROJECT_ID;
     this.location = 'us-central1'; // Regional location required for Chirp model
-    this.recognizerId = 'career-advisor-recognizer'; // Persistent recognizer for v2
+    this.recognizerId = 'career-advisor-recognizer-v2'; // Persistent recognizer for v2 with chirp_2 model
     this.isConfigured = false;
     this.useV2Api = true; // Feature flag to switch between v1 and v2
     this.v2Available = false;
@@ -44,11 +44,13 @@ class SpeechToTextService {
         if (credentials) {
           this.clientV2 = new speechV2.SpeechClient({
             projectId: this.projectId,
-            keyFilename: credentials
+            keyFilename: credentials,
+            apiEndpoint: 'us-central1-speech.googleapis.com' // Crucial fix for V2 Chirp models
           });
         } else {
           this.clientV2 = new speechV2.SpeechClient({
-            projectId: this.projectId
+            projectId: this.projectId,
+            apiEndpoint: 'us-central1-speech.googleapis.com' // Crucial fix for V2 Chirp models
           });
         }
         this.v2Available = true;
@@ -1327,7 +1329,7 @@ class SpeechToTextService {
         recognizerId: this.recognizerId,
         recognizer: {
           languageCodes: ['en-US'],
-          model: 'chirp' // Latest Chirp model - uses most recent version automatically (5-10% better accuracy)
+          model: 'chirp_2' // Chirp 2 model - latest stable version with better accuracy
         }
       });
 
@@ -1348,28 +1350,25 @@ class SpeechToTextService {
     try {
       const recognizerPath = await this.getOrCreateRecognizer();
 
-      // Get domain-specific vocabulary
-      const vocabularyPhrases = domainId ? this.getDomainVocabulary(domainId) : [
-        'database', 'schema', 'table', 'index', 'query',
-        'API', 'authentication', 'authorization', 'performance'
-      ];
+      // Map V1 encoding names to V2 encoding enum values
+      const v2EncodingMap = {
+        'WEBM_OPUS': 'WEBM_OPUS',
+        'OGG_OPUS': 'OGG_OPUS',
+        'LINEAR16': 'LINEAR16',
+        'FLAC': 'FLAC',
+        'MP3': 'MP3',
+        'ENCODING_UNSPECIFIED': 'ENCODING_UNSPECIFIED'
+      };
 
-      if (domainId) {
-        console.log(`📚 V2: Using domain-specific vocabulary for: ${domainId} (${vocabularyPhrases.length} terms)`);
-      }
+      const v2Encoding = v2EncodingMap[encoding] || 'ENCODING_UNSPECIFIED';
 
-      // V2 config structure (different from v1)
+      // V2 API config structure - use explicit decoding since auto-decoding fails for WEBM_OPUS
+      // Note: model and languageCodes are already defined in the recognizer
       const config = {
-        autoDecodingConfig: {}, // Let v2 auto-detect encoding
-        features: {
-          enableAutomaticPunctuation: true,
-          enableWordTimeOffsets: true,
-          enableWordConfidence: true
-        },
-        adaptation: {
-          phraseSet: {
-            phrases: vocabularyPhrases.map(phrase => ({ value: phrase, boost: 20 }))
-          }
+        explicitDecodingConfig: {
+          encoding: v2Encoding,
+          sampleRateHertz: sampleRateHertz,
+          audioChannelCount: 1
         }
       };
 
@@ -1379,7 +1378,7 @@ class SpeechToTextService {
         content: audioBuffer
       };
 
-      console.log('🎤 V2: Sending recognition request...');
+      console.log(`🎤 V2: Sending recognition request (${v2Encoding} @ ${sampleRateHertz}Hz)...`);
       const [response] = await this.clientV2.recognize(request);
 
       // Process v2 response (similar structure to v1)
@@ -1419,28 +1418,25 @@ class SpeechToTextService {
     try {
       const recognizerPath = await this.getOrCreateRecognizer();
 
-      // Get domain-specific vocabulary
-      const vocabularyPhrases = domainId ? this.getDomainVocabulary(domainId) : [
-        'database', 'schema', 'table', 'index', 'query',
-        'API', 'authentication', 'authorization', 'performance'
-      ];
+      // Map V1 encoding names to V2 encoding enum values
+      const v2EncodingMap = {
+        'WEBM_OPUS': 'WEBM_OPUS',
+        'OGG_OPUS': 'OGG_OPUS',
+        'LINEAR16': 'LINEAR16',
+        'FLAC': 'FLAC',
+        'MP3': 'MP3',
+        'ENCODING_UNSPECIFIED': 'ENCODING_UNSPECIFIED'
+      };
 
-      if (domainId) {
-        console.log(`📚 V2 Batch: Using domain-specific vocabulary for: ${domainId} (${vocabularyPhrases.length} terms)`);
-      }
+      const v2Encoding = v2EncodingMap[encoding] || 'ENCODING_UNSPECIFIED';
 
-      // V2 batch config
+      // V2 API batch config - use explicit decoding since auto-decoding fails for WEBM_OPUS
+      // Note: model and languageCodes are already defined in the recognizer
       const config = {
-        autoDecodingConfig: {}, // Let v2 auto-detect encoding
-        features: {
-          enableAutomaticPunctuation: true,
-          enableWordTimeOffsets: true,
-          enableWordConfidence: true
-        },
-        adaptation: {
-          phraseSet: {
-            phrases: vocabularyPhrases.map(phrase => ({ value: phrase, boost: 20 }))
-          }
+        explicitDecodingConfig: {
+          encoding: v2Encoding,
+          sampleRateHertz: sampleRateHertz,
+          audioChannelCount: 1
         }
       };
 
@@ -1455,7 +1451,7 @@ class SpeechToTextService {
         }
       };
 
-      console.log('🎤 V2 Batch: Starting long-running recognition...');
+      console.log(`🎤 V2 Batch: Starting long-running recognition (${v2Encoding} @ ${sampleRateHertz}Hz)...`);
       console.log(`📁 File: ${gcsUri} (${bufferSizeInMB.toFixed(2)}MB)`);
 
       const [operation] = await this.clientV2.batchRecognize(request);
@@ -1489,21 +1485,52 @@ class SpeechToTextService {
       }
 
       // Process batch response
+      console.log('📦 V2 Batch response keys:', Object.keys(response || {}));
+
       if (!response.results || Object.keys(response.results).length === 0) {
+        console.log('📦 V2 Batch response.results:', JSON.stringify(response.results, null, 2).substring(0, 500));
         throw new Error('No transcription results from v2 batch');
       }
 
+      console.log('📦 V2 Batch results keys:', Object.keys(response.results));
+
       // Extract results from batch response structure
       const fileResults = response.results[gcsUri];
-      if (!fileResults || !fileResults.transcript || !fileResults.transcript.results) {
-        throw new Error('Invalid v2 batch response structure');
+      if (!fileResults) {
+        // Try to find results by partial URI match (sometimes GCS URIs differ slightly)
+        const resultKeys = Object.keys(response.results);
+        console.log('📦 Available result keys:', resultKeys);
+        const matchingKey = resultKeys.find(key => key.includes(gcsUri.split('/').pop()));
+        if (matchingKey) {
+          console.log(`📦 Using partial match key: ${matchingKey}`);
+        }
       }
 
-      const transcription = fileResults.transcript.results
+      const actualFileResults = fileResults || Object.values(response.results)[0];
+
+      if (!actualFileResults) {
+        console.log('📦 No file results found');
+        throw new Error('Invalid v2 batch response structure - no file results');
+      }
+
+      console.log('📦 File results keys:', Object.keys(actualFileResults || {}));
+
+      if (!actualFileResults.transcript) {
+        console.log('📦 File results:', JSON.stringify(actualFileResults, null, 2).substring(0, 1000));
+        throw new Error('Invalid v2 batch response structure - no transcript');
+      }
+
+      if (!actualFileResults.transcript.results) {
+        console.log('📦 Transcript object:', JSON.stringify(actualFileResults.transcript, null, 2).substring(0, 500));
+        throw new Error('Invalid v2 batch response structure - no results in transcript');
+      }
+
+      const transcription = actualFileResults.transcript.results
         .map(result => result.alternatives && result.alternatives[0])
         .filter(alt => alt && alt.transcript);
 
       if (transcription.length === 0) {
+        console.log('📦 Transcript results:', JSON.stringify(actualFileResults.transcript.results, null, 2).substring(0, 1000));
         throw new Error('No valid transcription in v2 batch results');
       }
 

@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CareerCraft AI - Live Interview Test</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 800px;
+            width: 100%;
+            padding: 40px;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+
+        .config-section {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            color: #333;
+            font-weight: 600;
+            margin-bottom: 5px;
+            font-size: 14px;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .controls {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        button {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            flex: 1;
+            min-width: 150px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-danger {
+            background: #e74c3c;
+            color: white;
+        }
+
+        .btn-danger:hover:not(:disabled) {
+            background: #c0392b;
+        }
+
+        .btn-secondary {
+            background: #95a5a6;
+            color: white;
+        }
+
+        .btn-secondary:hover:not(:disabled) {
+            background: #7f8c8d;
+        }
+
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .status-section {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .status-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+
+        .status-label {
+            color: #666;
+            font-weight: 600;
+        }
+
+        .status-value {
+            color: #333;
+        }
+
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+
+        .status-indicator.connected {
+            background: #2ecc71;
+            box-shadow: 0 0 10px rgba(46, 204, 113, 0.5);
+        }
+
+        .status-indicator.disconnected {
+            background: #e74c3c;
+        }
+
+        .status-indicator.listening {
+            background: #3498db;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .log-section {
+            background: #1e1e1e;
+            border-radius: 10px;
+            padding: 20px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .log-entry {
+            color: #e0e0e0;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            margin-bottom: 8px;
+            padding: 5px;
+            border-left: 3px solid transparent;
+        }
+
+        .log-entry.info {
+            border-left-color: #3498db;
+        }
+
+        .log-entry.success {
+            border-left-color: #2ecc71;
+        }
+
+        .log-entry.error {
+            border-left-color: #e74c3c;
+        }
+
+        .log-entry.warning {
+            border-left-color: #f39c12;
+        }
+
+        .timestamp {
+            color: #95a5a6;
+            margin-right: 10px;
+        }
+
+        .audio-visualizer {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        #audioCanvas {
+            width: 100%;
+            height: 100px;
+            background: white;
+            border-radius: 8px;
+        }
+
+        .footer {
+            text-align: center;
+            color: #666;
+            font-size: 12px;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>CareerCraft AI - Live Interview Test</h1>
+        <p class="subtitle">Test the Next-Gen Real-Time Interview Experience</p>
+
+        <!-- Configuration Section -->
+        <div class="config-section">
+            <h3 style="margin-bottom: 15px; color: #333;">Interview Configuration</h3>
+            <div class="form-group">
+                <label for="wsUrl">WebSocket URL:</label>
+                <input type="text" id="wsUrl" value="ws://localhost:8001/ws/interview-live">
+            </div>
+            <div class="form-group">
+                <label for="targetDomain">Target Domain:</label>
+                <select id="targetDomain">
+                    <option value="Python Developer">Python Developer</option>
+                    <option value="JavaScript Developer">JavaScript Developer</option>
+                    <option value="Full Stack Developer">Full Stack Developer</option>
+                    <option value="Data Scientist">Data Scientist</option>
+                    <option value="DevOps Engineer">DevOps Engineer</option>
+                    <option value="Machine Learning Engineer">Machine Learning Engineer</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="experienceLevel">Experience Level:</label>
+                <select id="experienceLevel">
+                    <option value="Junior">Junior (0-2 years)</option>
+                    <option value="Mid-Level" selected>Mid-Level (2-5 years)</option>
+                    <option value="Senior">Senior (5+ years)</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Controls -->
+        <div class="controls">
+            <button id="connectBtn" class="btn-primary">Connect & Start Interview</button>
+            <button id="disconnectBtn" class="btn-danger" disabled>End Interview</button>
+            <button id="muteBtn" class="btn-secondary" disabled>Mute Mic</button>
+        </div>
+
+        <!-- Status Section -->
+        <div class="status-section">
+            <h3 style="margin-bottom: 15px; color: #333;">Connection Status</h3>
+            <div class="status-item">
+                <span class="status-label">WebSocket:</span>
+                <span class="status-value">
+                    <span class="status-indicator disconnected" id="wsIndicator"></span>
+                    <span id="wsStatus">Disconnected</span>
+                </span>
+            </div>
+            <div class="status-item">
+                <span class="status-label">Microphone:</span>
+                <span class="status-value">
+                    <span class="status-indicator disconnected" id="micIndicator"></span>
+                    <span id="micStatus">Not Active</span>
+                </span>
+            </div>
+            <div class="status-item">
+                <span class="status-label">Audio Streaming:</span>
+                <span class="status-value" id="streamingStatus">Idle</span>
+            </div>
+        </div>
+
+        <!-- Audio Visualizer -->
+        <div class="audio-visualizer">
+            <h3 style="margin-bottom: 15px; color: #333;">Audio Level</h3>
+            <canvas id="audioCanvas"></canvas>
+        </div>
+
+        <!-- Log Section -->
+        <div class="log-section" id="logContainer">
+            <!-- Logs will appear here -->
+        </div>
+
+        <div class="footer">
+            CareerCraft AI © 2024 | Test Environment
+        </div>
+    </div>
+
+    <script>
+        // Application State
+        const state = {
+            ws: null,
+            audioContext: null,
+            mediaStream: null,
+            audioWorkletNode: null,
+            isMuted: false,
+            isConnected: false
+        };
+
+        // DOM Elements
+        const elements = {
+            connectBtn: document.getElementById('connectBtn'),
+            disconnectBtn: document.getElementById('disconnectBtn'),
+            muteBtn: document.getElementById('muteBtn'),
+            wsUrl: document.getElementById('wsUrl'),
+            targetDomain: document.getElementById('targetDomain'),
+            experienceLevel: document.getElementById('experienceLevel'),
+            wsIndicator: document.getElementById('wsIndicator'),
+            wsStatus: document.getElementById('wsStatus'),
+            micIndicator: document.getElementById('micIndicator'),
+            micStatus: document.getElementById('micStatus'),
+            streamingStatus: document.getElementById('streamingStatus'),
+            logContainer: document.getElementById('logContainer'),
+            audioCanvas: document.getElementById('audioCanvas')
+        };
+
+        // Logging utility
+        function log(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const logEntry = document.createElement('div');
+            logEntry.className = `log-entry ${type}`;
+            logEntry.innerHTML = `<span class="timestamp">[${timestamp}]</span>${message}`;
+            elements.logContainer.appendChild(logEntry);
+            elements.logContainer.scrollTop = elements.logContainer.scrollHeight;
+            console.log(`[${type.toUpperCase()}] ${message}`);
+        }
+
+        // Update status indicators
+        function updateStatus(wsConnected, micActive) {
+            elements.wsIndicator.className = `status-indicator ${wsConnected ? 'connected' : 'disconnected'}`;
+            elements.wsStatus.textContent = wsConnected ? 'Connected' : 'Disconnected';
+            elements.micIndicator.className = `status-indicator ${micActive ? 'listening' : 'disconnected'}`;
+            elements.micStatus.textContent = micActive ? 'Active & Streaming' : 'Not Active';
+        }
+
+        // Connect to WebSocket and start interview
+        async function connect() {
+            try {
+                log('Initializing connection...', 'info');
+
+                // Request microphone access
+                log('Requesting microphone access...', 'info');
+                state.mediaStream = await navigator.mediaDevices.getUserMedia({
+                    audio: {
+                        channelCount: 1,
+                        sampleRate: 16000,
+                        echoCancellation: true,
+                        noiseSuppression: true,
+                        autoGainControl: true
+                    }
+                });
+
+                log('Microphone access granted', 'success');
+                updateStatus(false, true);
+
+                // Create WebSocket connection
+                const wsUrl = elements.wsUrl.value;
+                log(`Connecting to ${wsUrl}...`, 'info');
+
+                state.ws = new WebSocket(wsUrl);
+
+                state.ws.onopen = async () => {
+                    log('WebSocket connected', 'success');
+                    updateStatus(true, true);
+
+                    // Send handshake
+                    const handshake = {
+                        type: 'handshake',
+                        targetDomain: elements.targetDomain.value,
+                        experienceLevel: elements.experienceLevel.value,
+                        interviewType: 'technical'
+                    };
+
+                    log(`Sending handshake: ${JSON.stringify(handshake)}`, 'info');
+                    state.ws.send(JSON.stringify(handshake));
+                };
+
+                state.ws.onmessage = async (event) => {
+                    if (event.data instanceof Blob) {
+                        // Audio data received - play it
+                        await playAudioBlob(event.data);
+                        elements.streamingStatus.textContent = 'Receiving AI Response';
+                    } else {
+                        // JSON message
+                        const message = JSON.parse(event.data);
+                        log(`Received: ${JSON.stringify(message)}`, 'info');
+
+                        if (message.type === 'ready') {
+                            log('Interview session ready! Start speaking...', 'success');
+                            await startAudioStreaming();
+                            elements.streamingStatus.textContent = 'Streaming Audio';
+                        } else if (message.type === 'error') {
+                            log(`Error: ${message.message}`, 'error');
+                        } else if (message.type === 'transcript') {
+                            log(`Transcript: ${message.text}`, 'info');
+                        }
+                    }
+                };
+
+                state.ws.onerror = (error) => {
+                    log(`WebSocket error: ${error}`, 'error');
+                };
+
+                state.ws.onclose = () => {
+                    log('WebSocket disconnected', 'warning');
+                    cleanup();
+                };
+
+                // Update UI
+                elements.connectBtn.disabled = true;
+                elements.disconnectBtn.disabled = false;
+                elements.muteBtn.disabled = false;
+                state.isConnected = true;
+
+            } catch (error) {
+                log(`Connection failed: ${error.message}`, 'error');
+                cleanup();
+            }
+        }
+
+        // Start streaming audio from microphone
+        async function startAudioStreaming() {
+            try {
+                // Create audio context
+                state.audioContext = new (window.AudioContext || window.webkitAudioContext)({
+                    sampleRate: 16000
+                });
+
+                const source = state.audioContext.createMediaStreamSource(state.mediaStream);
+
+                // Create script processor for capturing audio
+                const processor = state.audioContext.createScriptProcessor(4096, 1, 1);
+
+                processor.onaudioprocess = (e) => {
+                    if (state.ws && state.ws.readyState === WebSocket.OPEN && !state.isMuted) {
+                        const inputData = e.inputBuffer.getChannelData(0);
+
+                        // Convert Float32Array to Int16Array (PCM)
+                        const pcmData = new Int16Array(inputData.length);
+                        for (let i = 0; i < inputData.length; i++) {
+                            const s = Math.max(-1, Math.min(1, inputData[i]));
+                            pcmData[i] = s < 0 ? s * 0x8000 : s * 0x7FFF;
+                        }
+
+                        // Send raw PCM data
+                        state.ws.send(pcmData.buffer);
+
+                        // Visualize audio level
+                        visualizeAudio(inputData);
+                    }
+                };
+
+                source.connect(processor);
+                processor.connect(state.audioContext.destination);
+
+                state.audioWorkletNode = processor;
+                log('Audio streaming started', 'success');
+
+            } catch (error) {
+                log(`Failed to start audio streaming: ${error.message}`, 'error');
+            }
+        }
+
+        // Play audio blob received from server
+        async function playAudioBlob(blob) {
+            try {
+                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                const arrayBuffer = await blob.arrayBuffer();
+                const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
+
+                const source = audioContext.createBufferSource();
+                source.buffer = audioBuffer;
+                source.connect(audioContext.destination);
+                source.start(0);
+
+                log('Playing AI response...', 'info');
+
+                source.onended = () => {
+                    elements.streamingStatus.textContent = 'Listening for your response';
+                };
+
+            } catch (error) {
+                log(`Failed to play audio: ${error.message}`, 'error');
+            }
+        }
+
+        // Visualize audio input
+        function visualizeAudio(data) {
+            const canvas = elements.audioCanvas;
+            const ctx = canvas.getContext('2d');
+            const width = canvas.width;
+            const height = canvas.height;
+
+            // Calculate RMS (volume level)
+            let sum = 0;
+            for (let i = 0; i < data.length; i++) {
+                sum += data[i] * data[i];
+            }
+            const rms = Math.sqrt(sum / data.length);
+            const db = 20 * Math.log10(rms);
+
+            // Clear canvas
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(0, 0, width, height);
+
+            // Draw level bar
+            const normalizedLevel = Math.max(0, Math.min(1, (db + 60) / 60));
+            const barWidth = width * normalizedLevel;
+
+            const gradient = ctx.createLinearGradient(0, 0, width, 0);
+            gradient.addColorStop(0, '#2ecc71');
+            gradient.addColorStop(0.5, '#f39c12');
+            gradient.addColorStop(1, '#e74c3c');
+
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, barWidth, height);
+        }
+
+        // Disconnect and cleanup
+        function disconnect() {
+            if (state.ws) {
+                state.ws.send(JSON.stringify({ type: 'end_interview' }));
+                state.ws.close();
+            }
+            cleanup();
+        }
+
+        // Cleanup resources
+        function cleanup() {
+            if (state.audioWorkletNode) {
+                state.audioWorkletNode.disconnect();
+                state.audioWorkletNode = null;
+            }
+
+            if (state.audioContext) {
+                state.audioContext.close();
+                state.audioContext = null;
+            }
+
+            if (state.mediaStream) {
+                state.mediaStream.getTracks().forEach(track => track.stop());
+                state.mediaStream = null;
+            }
+
+            if (state.ws) {
+                state.ws = null;
+            }
+
+            updateStatus(false, false);
+            elements.streamingStatus.textContent = 'Idle';
+            elements.connectBtn.disabled = false;
+            elements.disconnectBtn.disabled = true;
+            elements.muteBtn.disabled = true;
+            elements.muteBtn.textContent = 'Mute Mic';
+            state.isMuted = false;
+            state.isConnected = false;
+
+            log('Disconnected and cleaned up', 'info');
+        }
+
+        // Toggle mute
+        function toggleMute() {
+            state.isMuted = !state.isMuted;
+            elements.muteBtn.textContent = state.isMuted ? 'Unmute Mic' : 'Mute Mic';
+            elements.muteBtn.className = state.isMuted ? 'btn-primary' : 'btn-secondary';
+
+            if (state.ws) {
+                state.ws.send(JSON.stringify({
+                    type: state.isMuted ? 'mute' : 'unmute'
+                }));
+            }
+
+            log(state.isMuted ? 'Microphone muted' : 'Microphone unmuted', 'info');
+        }
+
+        // Event listeners
+        elements.connectBtn.addEventListener('click', connect);
+        elements.disconnectBtn.addEventListener('click', disconnect);
+        elements.muteBtn.addEventListener('click', toggleMute);
+
+        // Initial setup
+        const canvas = elements.audioCanvas;
+        canvas.width = canvas.offsetWidth;
+        canvas.height = canvas.offsetHeight;
+
+        log('Test page loaded. Configure settings and click "Connect & Start Interview"', 'info');
+    </script>
+</body>
+</html>

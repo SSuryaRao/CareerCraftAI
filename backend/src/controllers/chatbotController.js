@@ -168,13 +168,45 @@ class ChatbotController {
     const actionData = {};
 
     switch (intentName) {
-      case 'mentor.connect':
-      case 'mentor.select':
+      // ============================================
+      // RESUME BUILDER INTENTS (NEW!)
+      // ============================================
+      case 'resume.builder.create':
         actionData.action = 'redirect';
-        actionData.redirectTo = '/mentor';
-        actionData.mentorPersona = parameters.mentorPersona || 'Arjun';
+        actionData.redirectTo = '/features/resume-builder';
+        actionData.feature = 'resume_builder';
         break;
 
+      case 'resume.builder.autofill':
+        actionData.action = 'redirect';
+        actionData.redirectTo = '/features/resume-builder';
+        actionData.highlight = 'autofill_button';
+        break;
+
+      case 'resume.builder.templates':
+        actionData.action = 'redirect';
+        actionData.redirectTo = '/features/resume-builder';
+        actionData.highlight = 'templates_section';
+        break;
+
+      case 'resume.builder.ai_summary':
+        actionData.action = 'redirect';
+        actionData.redirectTo = '/features/resume-builder';
+        actionData.highlight = 'ai_summary';
+        break;
+
+      case 'resume.difference':
+        // Provide info but don't redirect - let user choose
+        actionData.action = 'show_info';
+        actionData.info = {
+          analyzer: '/features/resume-analyzer',
+          builder: '/features/resume-builder'
+        };
+        break;
+
+      // ============================================
+      // RESUME ANALYZER INTENTS
+      // ============================================
       case 'resume.analyze':
         actionData.action = 'redirect';
         actionData.redirectTo = '/features/resume-analyzer';
@@ -184,6 +216,19 @@ class ChatbotController {
         }
         break;
 
+      // ============================================
+      // AI MENTOR INTENTS
+      // ============================================
+      case 'mentor.connect':
+      case 'mentor.select':
+        actionData.action = 'redirect';
+        actionData.redirectTo = '/mentor';
+        actionData.mentorPersona = parameters.mentorPersona || 'Arjun';
+        break;
+
+      // ============================================
+      // JOB SEARCH INTENTS
+      // ============================================
       case 'job.search':
         actionData.action = 'redirect';
         actionData.redirectTo = '/careers';
@@ -193,22 +238,34 @@ class ChatbotController {
         };
         break;
 
+      // ============================================
+      // MOCK INTERVIEW INTENTS
+      // ============================================
       case 'interview.practice':
         actionData.action = 'redirect';
         actionData.redirectTo = '/mock-interview';
         break;
 
+      // ============================================
+      // CAREER ROADMAP INTENTS
+      // ============================================
       case 'roadmap.view':
       case 'roadmap.create':
         actionData.action = 'redirect';
         actionData.redirectTo = '/solutions/roadmap';
         break;
 
+      // ============================================
+      // SCHOLARSHIP INTENTS
+      // ============================================
       case 'scholarship.search':
         actionData.action = 'redirect';
         actionData.redirectTo = '/features/scholarships';
         break;
 
+      // ============================================
+      // PROFILE & DASHBOARD INTENTS
+      // ============================================
       case 'profile.view':
         actionData.action = 'redirect';
         actionData.redirectTo = '/dashboard';
@@ -220,15 +277,72 @@ class ChatbotController {
         actionData.field = parameters.field || 'all';
         break;
 
+      // ============================================
+      // SUBSCRIPTION & PRICING INTENTS
+      // ============================================
+      case 'subscription.info':
+        actionData.action = 'redirect';
+        actionData.redirectTo = '/pricing';
+        break;
+
+      // ============================================
+      // SKILLS MANAGEMENT INTENTS
+      // ============================================
+      case 'skills.manage':
+        actionData.action = 'redirect';
+        actionData.redirectTo = '/skills';
+        break;
+
+      // ============================================
+      // ONBOARDING INTENTS
+      // ============================================
+      case 'onboarding.start':
+        actionData.action = 'redirect';
+        actionData.redirectTo = '/onboarding';
+        break;
+
+      // ============================================
+      // RESOURCES & GUIDES INTENTS
+      // ============================================
+      case 'resources.guides':
+        actionData.action = 'redirect';
+        actionData.redirectTo = '/resources';
+        break;
+
+      // ============================================
+      // NAVIGATION INTENTS
+      // ============================================
+      case 'navigation.about':
+        actionData.action = 'redirect';
+        actionData.redirectTo = '/about';
+        break;
+
+      case 'navigation.contact':
+        actionData.action = 'redirect';
+        actionData.redirectTo = '/contact';
+        break;
+
+      // ============================================
+      // FEEDBACK INTENTS
+      // ============================================
+      case 'feedback.submit':
+        actionData.action = 'redirect';
+        actionData.redirectTo = '/feedback';
+        break;
+
+      // ============================================
+      // FEATURES LIST INTENT
+      // ============================================
       case 'features.list':
         actionData.action = 'show_features';
         actionData.features = [
-          { name: 'Resume Analyzer', path: '/features/resume-analyzer', icon: 'FileText' },
-          { name: 'Job Search', path: '/careers', icon: 'Briefcase' },
-          { name: 'AI Mentor', path: '/mentor', icon: 'MessageCircle' },
-          { name: 'Mock Interview', path: '/mock-interview', icon: 'Video' },
-          { name: 'Career Roadmap', path: '/solutions/roadmap', icon: 'Map' },
-          { name: 'Scholarship Finder', path: '/features/scholarships', icon: 'Award' }
+          { name: 'Resume Builder', path: '/features/resume-builder', icon: 'FileEdit', description: 'Create professional resumes with AI' },
+          { name: 'Resume Analyzer', path: '/features/resume-analyzer', icon: 'FileText', description: 'Get ATS score and tips' },
+          { name: 'Job Search', path: '/careers', icon: 'Briefcase', description: 'Find matching opportunities' },
+          { name: 'AI Mentor', path: '/mentor', icon: 'MessageCircle', description: 'Voice-enabled career guidance' },
+          { name: 'Mock Interview', path: '/mock-interview', icon: 'Video', description: 'Practice with AI feedback' },
+          { name: 'Career Roadmap', path: '/solutions/roadmap', icon: 'Map', description: 'Plan your learning path' },
+          { name: 'Scholarship Finder', path: '/features/scholarships', icon: 'Award', description: 'Discover funding opportunities' }
         ];
         break;
 
@@ -364,10 +478,11 @@ class ChatbotController {
    */
   sendFallbackResponse(res, errorMessage) {
     const fallbackMessage = 'I\'m having trouble right now. Here are some quick links:\n\n' +
-      '• Resume Analyzer - Analyze and improve your resume\n' +
+      '• Resume Builder - Create professional resumes with AI\n' +
+      '• Resume Analyzer - Get ATS score and improvement tips\n' +
       '• Job Search - Find remote opportunities\n' +
-      '• AI Mentor - Get personalized career guidance\n' +
-      '• Mock Interview - Practice interview questions\n' +
+      '• AI Mentor - Voice-enabled career guidance\n' +
+      '• Mock Interview - Practice with AI feedback\n' +
       '• Career Roadmap - Plan your learning path\n\n' +
       'You can also try asking: "What can you help me with?"';
 

@@ -24,13 +24,13 @@ export default function AIMentorPage() {
     <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50 dark:from-gray-950 dark:via-gray-900 dark:to-purple-950/20">
       <Navbar variant="transparent" />
 
-      <section className="pt-24 pb-16 gradient-test-4 text-white relative overflow-hidden">
+      <section className="pt-20 sm:pt-24 pb-12 sm:pb-16 gradient-test-4 text-white relative overflow-hidden">
         {/* Dark overlay for better text visibility */}
         <div className="absolute inset-0 bg-black/20"></div>
 
         {/* Animated Background Elements */}
         <motion.div
-          className="absolute top-20 left-10 w-72 h-72 bg-purple-300/20 dark:bg-purple-400/10 rounded-full blur-3xl"
+          className="absolute top-10 sm:top-20 left-5 sm:left-10 w-48 h-48 sm:w-72 sm:h-72 bg-purple-300/20 dark:bg-purple-400/10 rounded-full blur-3xl"
           animate={{
             scale: [1, 1.2, 1],
             opacity: [0.4, 0.6, 0.4],
@@ -42,7 +42,7 @@ export default function AIMentorPage() {
           }}
         />
         <motion.div
-          className="absolute bottom-10 right-10 w-96 h-96 bg-blue-300/20 dark:bg-blue-400/10 rounded-full blur-3xl"
+          className="absolute bottom-5 sm:bottom-10 right-5 sm:right-10 w-64 h-64 sm:w-96 sm:h-96 bg-blue-300/20 dark:bg-blue-400/10 rounded-full blur-3xl"
           animate={{
             scale: [1.2, 1, 1.2],
             opacity: [0.6, 0.4, 0.6],
@@ -54,7 +54,7 @@ export default function AIMentorPage() {
           }}
         />
 
-        <div className="max-w-7xl mx-auto px-4 text-center relative z-10">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 text-center relative z-10">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
@@ -65,14 +65,14 @@ export default function AIMentorPage() {
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.5, delay: 0.2 }}
             >
-              <Badge className="bg-white/20 dark:bg-purple-500/20 text-white border-white/30 dark:border-purple-400 mb-6 backdrop-blur-sm">
-                <Brain className="w-4 h-4 mr-2" />
+              <Badge className="bg-white/20 dark:bg-purple-500/20 text-white border-white/30 dark:border-purple-400 mb-4 sm:mb-6 backdrop-blur-sm text-xs sm:text-sm">
+                <Brain className="w-3 h-3 sm:w-4 sm:h-4 mr-1.5 sm:mr-2" />
                 AI-Powered Mentorship
               </Badge>
             </motion.div>
 
             <motion.h1
-              className="text-4xl lg:text-6xl font-bold mb-6"
+              className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-4 sm:mb-6 px-2"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.3 }}
@@ -82,7 +82,7 @@ export default function AIMentorPage() {
             </motion.h1>
 
             <motion.p
-              className="text-xl text-white/95 dark:text-gray-300 max-w-3xl mx-auto mb-8 drop-shadow-md"
+              className="text-base sm:text-lg md:text-xl text-white/95 dark:text-gray-300 max-w-3xl mx-auto mb-6 sm:mb-8 drop-shadow-md px-4 sm:px-6 leading-relaxed"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.4 }}
@@ -92,13 +92,13 @@ export default function AIMentorPage() {
             </motion.p>
 
             <motion.div
-              className="flex justify-center"
+              className="flex justify-center px-4"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.5 }}
             >
               <motion.div
-                whileHover={{ scale: 1.08 }}
+                whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.98 }}
                 animate={{
                   boxShadow: [
@@ -114,19 +114,20 @@ export default function AIMentorPage() {
                     ease: "easeInOut"
                   }
                 }}
+                className="w-full sm:w-auto"
               >
                 <Button
                   size="lg"
-                  className="bg-white text-purple-600 hover:bg-purple-50 shadow-2xl hover:shadow-3xl font-bold text-lg px-10 py-7 rounded-xl ring-4 ring-white/30 hover:ring-white/50 transition-all duration-300"
+                  className="bg-white text-purple-600 hover:bg-purple-50 shadow-2xl hover:shadow-3xl font-bold text-base sm:text-lg px-6 py-6 sm:px-10 sm:py-7 rounded-xl ring-4 ring-white/30 hover:ring-white/50 transition-all duration-300 w-full sm:w-auto"
                   onClick={handleChatClick}
                 >
-                  <MessageSquare className="w-6 h-6 mr-3" />
+                  <MessageSquare className="w-5 h-5 sm:w-6 sm:h-6 mr-2 sm:mr-3" />
                   Chat with AI Mentor
                   <motion.div
                     animate={{ x: [0, 4, 0] }}
                     transition={{ duration: 1.5, repeat: Infinity }}
                   >
-                    <ArrowRight className="w-5 h-5 ml-3" />
+                    <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 ml-2 sm:ml-3" />
                   </motion.div>
                 </Button>
               </motion.div>
@@ -135,20 +136,20 @@ export default function AIMentorPage() {
         </div>
       </section>
 
-      <div className="max-w-7xl mx-auto px-4 py-16">
-        <section className="text-center mb-16">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-10 sm:py-12 md:py-16">
+        <section className="text-center mb-10 sm:mb-12 md:mb-16">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.5 }}
           >
-            <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">AI Mentor Capabilities</h2>
-            <p className="text-gray-600 dark:text-gray-400 mb-12 max-w-2xl mx-auto">
+            <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mb-3 sm:mb-4 px-2">AI Mentor Capabilities</h2>
+            <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400 mb-8 sm:mb-12 max-w-2xl mx-auto px-4">
               Unlock your potential with intelligent guidance tailored to your career journey
             </p>
           </motion.div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
             {[
               {
                 icon: Lightbulb,
@@ -182,21 +183,21 @@ export default function AIMentorPage() {
                 whileHover={{ y: -8 }}
                 className="group"
               >
-                <div className="relative p-8 rounded-2xl border border-gray-200 dark:border-white/10 bg-white dark:bg-white/5 hover:border-blue-200 dark:hover:border-transparent hover:shadow-2xl dark:hover:bg-white/10 transition-all duration-300 h-full backdrop-blur-xl">
-                  <div className={`absolute inset-0 bg-gradient-to-br ${feature.gradient} opacity-0 group-hover:opacity-10 dark:group-hover:opacity-10 rounded-2xl transition-opacity duration-300`} />
+                <div className="relative p-5 sm:p-6 md:p-8 rounded-xl sm:rounded-2xl border border-gray-200 dark:border-white/10 bg-white dark:bg-white/5 hover:border-blue-200 dark:hover:border-transparent hover:shadow-2xl dark:hover:bg-white/10 transition-all duration-300 h-full backdrop-blur-xl">
+                  <div className={`absolute inset-0 bg-gradient-to-br ${feature.gradient} opacity-0 group-hover:opacity-10 dark:group-hover:opacity-10 rounded-xl sm:rounded-2xl transition-opacity duration-300`} />
                   <div className="relative">
                     <motion.div
-                      className={`w-14 h-14 bg-gradient-to-br ${feature.gradient} rounded-xl flex items-center justify-center mx-auto mb-5 shadow-lg`}
+                      className={`w-12 h-12 sm:w-14 sm:h-14 bg-gradient-to-br ${feature.gradient} rounded-lg sm:rounded-xl flex items-center justify-center mx-auto mb-4 sm:mb-5 shadow-lg`}
                       whileHover={{
                         rotate: 360,
                         scale: 1.1
                       }}
                       transition={{ duration: 0.6 }}
                     >
-                      <feature.icon className="w-7 h-7 text-white" />
+                      <feature.icon className="w-6 h-6 sm:w-7 sm:h-7 text-white" />
                     </motion.div>
-                    <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-3">{feature.title}</h3>
-                    <p className="text-gray-600 dark:text-gray-400 leading-relaxed">{feature.description}</p>
+                    <h3 className="text-lg sm:text-xl font-semibold text-gray-900 dark:text-white mb-2 sm:mb-3">{feature.title}</h3>
+                    <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400 leading-relaxed">{feature.description}</p>
                   </div>
                 </div>
               </motion.div>
@@ -204,14 +205,14 @@ export default function AIMentorPage() {
           </div>
         </section>
 
-        <section>
+        <section className="px-2">
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             whileInView={{ opacity: 1, scale: 1 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
           >
-            <Card className="p-12 text-center bg-gradient-to-r from-purple-600 via-indigo-600 to-blue-600 dark:from-purple-700 dark:via-indigo-700 dark:to-blue-700 text-white shadow-2xl border-0 relative overflow-hidden">
+            <Card className="p-6 sm:p-8 md:p-12 text-center bg-gradient-to-r from-purple-600 via-indigo-600 to-blue-600 dark:from-purple-700 dark:via-indigo-700 dark:to-blue-700 text-white shadow-2xl border-0 relative overflow-hidden">
               {/* Animated shine effect */}
               <motion.div
                 className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent"
@@ -228,7 +229,7 @@ export default function AIMentorPage() {
 
               <div className="relative z-10">
                 <motion.h2
-                  className="text-3xl font-bold mb-4 drop-shadow-md"
+                  className="text-2xl sm:text-3xl font-bold mb-3 sm:mb-4 drop-shadow-md px-2"
                   initial={{ opacity: 0, y: 20 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
@@ -237,7 +238,7 @@ export default function AIMentorPage() {
                   Start Your AI Mentorship Journey
                 </motion.h2>
                 <motion.p
-                  className="text-white/95 dark:text-purple-200 mb-8 text-lg max-w-2xl mx-auto drop-shadow-sm"
+                  className="text-sm sm:text-base md:text-lg text-white/95 dark:text-purple-200 mb-6 sm:mb-8 max-w-2xl mx-auto drop-shadow-sm px-2 leading-relaxed"
                   initial={{ opacity: 0, y: 20 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
@@ -252,10 +253,11 @@ export default function AIMentorPage() {
                   transition={{ duration: 0.5, delay: 0.4 }}
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
+                  className="w-full sm:w-auto inline-block"
                 >
                   <Button
                     size="lg"
-                    className="bg-white text-purple-600 hover:bg-gray-100 dark:bg-white dark:text-purple-700 dark:hover:bg-gray-200 shadow-xl hover:shadow-2xl group font-semibold"
+                    className="bg-white text-purple-600 hover:bg-gray-100 dark:bg-white dark:text-purple-700 dark:hover:bg-gray-200 shadow-xl hover:shadow-2xl group font-semibold text-base sm:text-lg px-6 py-6 sm:px-8 sm:py-6 w-full sm:w-auto"
                     onClick={handleChatClick}
                   >
                     Get Started Today
@@ -263,7 +265,7 @@ export default function AIMentorPage() {
                       animate={{ x: [0, 5, 0] }}
                       transition={{ duration: 1.5, repeat: Infinity }}
                     >
-                      <ArrowRight className="w-5 h-5 ml-2" />
+                      <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 ml-2" />
                     </motion.div>
                   </Button>
                 </motion.div>

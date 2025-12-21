@@ -3,6 +3,7 @@
 import { motion } from 'framer-motion'
 import { Card } from '@/components/ui/card'
 import { UserPlus, Brain, Target, TrendingUp, Users, Sparkles } from 'lucide-react'
+import Link from 'next/link'
 
 const steps = [
   {
@@ -159,9 +160,11 @@ export default function HowItWorks() {
           <Card className="inline-block p-8 bg-gradient-to-r from-blue-500/10 via-purple-500/10 to-pink-500/10 border border-blue-200 dark:border-white/20 backdrop-blur-xl">
             <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">Ready to Start Your Journey?</h3>
             <p className="text-gray-700 dark:text-gray-300 mb-6">Join thousands of students who've transformed their careers with CareerCraft AI</p>
-            <button className="px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold rounded-full hover:from-blue-700 hover:to-purple-700 transition-all hover:scale-105 shadow-xl">
-              Get Started for Free
-            </button>
+            <Link href="/solutions/roadmap">
+              <button className="px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold rounded-full hover:from-blue-700 hover:to-purple-700 transition-all hover:scale-105 shadow-xl">
+                Get Started for Free
+              </button>
+            </Link>
           </Card>
         </motion.div>
       </div>

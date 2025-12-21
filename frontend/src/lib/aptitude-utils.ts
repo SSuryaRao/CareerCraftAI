@@ -65,8 +65,35 @@ export function formatTime(seconds: number): string {
   return `${mins}:${secs.toString().padStart(2, '0')}`
 }
 
+// Domain mappings by category
+const technicalDomains = ['frontend', 'backend', 'fullstack', 'data-science', 'mobile', 'ai-ml']
+const itInfrastructureDomains = ['devops', 'cloud', 'database', 'cybersecurity', 'network', 'sysadmin']
+const businessDomains = ['business-analyst', 'product-manager', 'project-manager', 'hr-talent', 'marketing', 'finance']
+const companyPatterns = ['faang', 'startup', 'service-based']
+
 // Get the API category key for backend
-export function getCategoryKey(testId: number): 'logical-reasoning' | 'quantitative-aptitude' | 'verbal-ability' {
+export function getCategoryKey(testId: number): string {
+  // Technical domains (100-105)
+  if (testId >= 100 && testId <= 105) {
+    return technicalDomains[testId - 100] || 'frontend'
+  }
+
+  // IT & Infrastructure domains (200-205)
+  if (testId >= 200 && testId <= 205) {
+    return itInfrastructureDomains[testId - 200] || 'devops'
+  }
+
+  // Business & Management domains (300-305)
+  if (testId >= 300 && testId <= 305) {
+    return businessDomains[testId - 300] || 'business-analyst'
+  }
+
+  // Company pattern tests (400-402)
+  if (testId >= 400 && testId <= 402) {
+    return companyPatterns[testId - 400] || 'faang'
+  }
+
+  // Basic aptitude tests (1-3)
   switch (testId) {
     case 1:
       return 'logical-reasoning'
@@ -80,7 +107,28 @@ export function getCategoryKey(testId: number): 'logical-reasoning' | 'quantitat
 }
 
 // Get the question pool key for frontend data
-export function getQuestionPoolKey(testId: number): 'logical' | 'quantitative' | 'verbal' {
+export function getQuestionPoolKey(testId: number): string {
+  // Technical domains (100-105)
+  if (testId >= 100 && testId <= 105) {
+    return technicalDomains[testId - 100] || 'frontend'
+  }
+
+  // IT & Infrastructure domains (200-205)
+  if (testId >= 200 && testId <= 205) {
+    return itInfrastructureDomains[testId - 200] || 'devops'
+  }
+
+  // Business & Management domains (300-305)
+  if (testId >= 300 && testId <= 305) {
+    return businessDomains[testId - 300] || 'business-analyst'
+  }
+
+  // Company pattern tests (400-402)
+  if (testId >= 400 && testId <= 402) {
+    return companyPatterns[testId - 400] || 'faang'
+  }
+
+  // Basic aptitude tests (1-3)
   switch (testId) {
     case 1:
       return 'logical'
@@ -93,24 +141,96 @@ export function getQuestionPoolKey(testId: number): 'logical' | 'quantitative' |
   }
 }
 
+// Title mappings
+const technicalTitles = [
+  'Software Engineering - Frontend',
+  'Software Engineering - Backend',
+  'Software Engineering - Full-Stack',
+  'Data Science & Machine Learning',
+  'Mobile Development',
+  'AI & ML Engineering'
+]
+
+const itInfrastructureTitles = [
+  'DevOps & Site Reliability Engineering',
+  'Cloud Architecture',
+  'Database Engineering',
+  'Cybersecurity & Ethical Hacking',
+  'Network Engineering',
+  'System Administration'
+]
+
+const businessTitles = [
+  'Business Analyst',
+  'Product Manager',
+  'Project Manager',
+  'HR & Talent Acquisition',
+  'Marketing & Growth',
+  'Finance & Operations'
+]
+
+const companyPatternTitles = [
+  { title: 'FAANG Companies', count: 20, duration: 30 },
+  { title: 'Startups', count: 20, duration: 25 },
+  { title: 'Service Companies', count: 20, duration: 25 }
+]
+
 export function getTestMetadata(testId: number) {
-  const metadata = {
+  // Technical domains (100-105)
+  if (testId >= 100 && testId <= 105) {
+    return {
+      title: technicalTitles[testId - 100] || 'Technical Test',
+      questionCount: 15,
+      duration: 20 * 60
+    }
+  }
+
+  // IT & Infrastructure domains (200-205)
+  if (testId >= 200 && testId <= 205) {
+    return {
+      title: itInfrastructureTitles[testId - 200] || 'IT & Infrastructure Test',
+      questionCount: 15,
+      duration: 20 * 60
+    }
+  }
+
+  // Business & Management domains (300-305)
+  if (testId >= 300 && testId <= 305) {
+    return {
+      title: businessTitles[testId - 300] || 'Business & Management Test',
+      questionCount: 15,
+      duration: 20 * 60
+    }
+  }
+
+  // Company pattern tests (400-402)
+  if (testId >= 400 && testId <= 402) {
+    const pattern = companyPatternTitles[testId - 400]
+    return {
+      title: pattern?.title || 'Company Pattern Test',
+      questionCount: pattern?.count || 20,
+      duration: (pattern?.duration || 25) * 60
+    }
+  }
+
+  // Basic aptitude tests
+  const metadata: { [key: number]: { title: string; questionCount: number; duration: number } } = {
     1: {
       title: "Logical Reasoning",
       questionCount: 15,
-      duration: 20 * 60, // 20 minutes in seconds
+      duration: 20 * 60,
     },
     2: {
       title: "Quantitative Aptitude",
       questionCount: 20,
-      duration: 25 * 60, // 25 minutes in seconds
+      duration: 25 * 60,
     },
     3: {
       title: "Verbal Ability",
       questionCount: 12,
-      duration: 15 * 60, // 15 minutes in seconds
+      duration: 15 * 60,
     }
   }
 
-  return metadata[testId as keyof typeof metadata] || metadata[1]
+  return metadata[testId] || metadata[1]
 }

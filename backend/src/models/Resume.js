@@ -210,8 +210,14 @@ const resumeSchema = new mongoose.Schema({
     reasons: [String],
     skillGaps: [String],
     nextSteps: [String],
+    currentStrengths: [String],
+    improvementAreas: [String],
     generatedAt: Date,
-    lastUpdated: Date
+    lastUpdated: Date,
+    modelUsed: {
+      type: String,
+      default: 'fine-tuned' // 'fine-tuned' or 'base'
+    }
   },
   careerInsights: {
     currentLevel: {

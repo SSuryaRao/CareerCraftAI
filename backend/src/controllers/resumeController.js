@@ -5,9 +5,21 @@ const { v4: uuidv4 } = require('uuid');
 const localStorage = require('../services/localStorage');
 const documentAI = require('../services/documentAI');
 const vertexAI = require('../services/vertexAI');
+const fineTunedAI = require('../services/fineTunedAI');
+const roadmapRecommender = require('../services/roadmapRecommender');
 
-// Vertex AI is now used for AI analysis (more reliable than Gemini API)
+// Fine-Tuned AI is now used for resume analysis when enabled
+// Falls back to base Vertex AI if not configured
 // Status will be logged during server startup
+
+// Determine which AI service to use
+const useFuneTunedModel = process.env.USE_FINE_TUNED_MODEL === 'true';
+const aiService = useFuneTunedModel && fineTunedAI.isReady() ? fineTunedAI : vertexAI;
+
+console.log(`🤖 Resume Analysis Service: ${useFuneTunedModel && fineTunedAI.isReady() ? 'Fine-Tuned Model' : 'Base Vertex AI Model'}`);
+if (useFuneTunedModel && !fineTunedAI.isReady()) {
+  console.warn('⚠️  Fine-tuned model requested but not configured. Falling back to base model.');
+}
 
 /**
  * Delete all old resumes for a user (both MongoDB and Firebase Storage)
@@ -249,6 +261,28 @@ const uploadAndAnalyzeResume = async (req, res) => {
       resume.metadata.processingTime = processingTime;
       await resume.save();
 
+      // Generate roadmap recommendations automatically (Option 1: During Upload)
+      let roadmapRecommendations = null;
+      try {
+        console.log('🗺️ Generating roadmap recommendations during upload...');
+        const roadmapStartTime = Date.now();
+
+        // Force generate new recommendations (don't use cache)
+        roadmapRecommendations = await roadmapRecommender.getPersonalizedRoadmap(userId, true);
+
+        const roadmapDuration = Date.now() - roadmapStartTime;
+        console.log(`✅ Roadmap recommendations generated in ${roadmapDuration}ms`);
+
+        if (roadmapRecommendations) {
+          console.log(`📊 Recommended: ${roadmapRecommendations.recommendedDomain} (${roadmapRecommendations.skillLevel})`);
+          console.log(`🎯 Confidence: ${roadmapRecommendations.confidence}% | Model: ${roadmapRecommendations.modelUsed || 'unknown'}`);
+        }
+      } catch (roadmapError) {
+        // Don't fail the whole upload if roadmap generation fails
+        console.error('⚠️ Roadmap generation failed (non-critical):', roadmapError.message);
+        roadmapRecommendations = null;
+      }
+
       // Log user activity
       const user = await User.findByFirebaseUid(userId);
       if (user) {
@@ -256,7 +290,8 @@ const uploadAndAnalyzeResume = async (req, res) => {
           resumeId: resume._id,
           filename: file.originalname,
           atsScore: analysisResult.overallScore,
-          processingTime
+          processingTime,
+          roadmapGenerated: roadmapRecommendations !== null
         });
       }
 
@@ -278,13 +313,24 @@ const uploadAndAnalyzeResume = async (req, res) => {
             skillsCount: structuredData.skills.length,
             topSkills: structuredData.skills.slice(0, 10).map(s => s.name)
           } : null,
+          roadmapRecommendations: roadmapRecommendations ? {
+            recommendedDomain: roadmapRecommendations.recommendedDomain,
+            skillLevel: roadmapRecommendations.skillLevel,
+            confidence: roadmapRecommendations.confidence,
+            modelUsed: roadmapRecommendations.modelUsed,
+            generated: true
+          } : {
+            generated: false,
+            message: 'Roadmap recommendations will be available on the roadmap page'
+          },
           metadata: {
             processingTime,
             textLength: resume.textLength,
             uploadedAt: resume.createdAt,
             extractionMethod: extractionMethod,
             extractionConfidence: extractionConfidence,
-            aiEnhanced: structuredData !== null
+            aiEnhanced: structuredData !== null,
+            roadmapGenerated: roadmapRecommendations !== null
           }
         }
       });
@@ -410,10 +456,12 @@ CRITICAL RULES:
 - Provide specific, actionable feedback
 - Use actual examples from the resume when possible`;
 
-  // Use Vertex AI with built-in retry logic (3 automatic retries)
+  // Use Fine-Tuned or Base Vertex AI with built-in retry logic (3 automatic retries)
   try {
-    console.log('🤖 Starting Vertex AI resume analysis...');
-    const responseText = await vertexAI.generateContent(
+    const modelType = aiService === fineTunedAI ? 'Fine-Tuned Model' : 'Base Vertex AI';
+    console.log(`🤖 Starting ${modelType} resume analysis...`);
+
+    const responseText = await aiService.generateContent(
       prompt,
       3, // 3 retries
       { maxOutputTokens: 16384, temperature: 0.3 }

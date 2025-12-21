@@ -275,18 +275,27 @@ export const useVoiceChat = ({
    * Stop audio playback
    */
   const stopSpeaking = useCallback(() => {
+    // Immediately set speaking to false for instant UI feedback
+    setIsSpeaking(false);
+
     if (audioRef.current) {
-      audioRef.current.pause();
-      audioRef.current.currentTime = 0;
-      audioRef.current = null;
+      try {
+        audioRef.current.pause();
+        audioRef.current.currentTime = 0;
+        audioRef.current = null;
+      } catch (error) {
+        console.error('Error stopping audio:', error);
+      }
     }
 
     if (currentAudioUrl) {
-      URL.revokeObjectURL(currentAudioUrl);
+      try {
+        URL.revokeObjectURL(currentAudioUrl);
+      } catch (error) {
+        console.error('Error revoking audio URL:', error);
+      }
       setCurrentAudioUrl(null);
     }
-
-    setIsSpeaking(false);
   }, [currentAudioUrl]);
 
   /**

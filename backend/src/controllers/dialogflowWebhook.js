@@ -29,6 +29,39 @@ class DialogflowWebhookController {
 
       // Route to appropriate handler based on tag
       switch (tag) {
+        // Resume Builder Webhooks
+        case 'resume-builder-create':
+          return this.sendResponse(res,
+            'Great! Our Resume Builder helps you create ATS-optimized resumes with:\n\n' +
+            '✨ AI-powered professional summary generation\n' +
+            '📋 Multiple professional templates\n' +
+            '🔄 Auto-fill from your profile\n' +
+            '📥 PDF download\n\n' +
+            'Redirecting you to Resume Builder...'
+          );
+
+        case 'resume-builder-templates':
+          return this.sendResponse(res,
+            'We offer multiple professional resume templates:\n' +
+            '• Modern layouts for tech professionals\n' +
+            '• Creative designs for designers\n' +
+            '• Classic formats for traditional industries\n' +
+            '• ATS-optimized templates\n\n' +
+            'Visit the Resume Builder to preview and select!'
+          );
+
+        case 'resume-builder-autofill':
+          return this.sendResponse(res,
+            'You can autofill your resume using the "Autofill from Profile" button in Resume Builder. ' +
+            'This will populate your contact info, education, and skills automatically!'
+          );
+
+        case 'resume-builder-ai-summary':
+          return this.sendResponse(res,
+            'Our AI can generate a professional summary for you! Fill in your experience and skills in Resume Builder, ' +
+            'then click "Generate with AI" in the Professional Summary section.'
+          );
+
         case 'get-resume-score':
           return await this.getResumeScore(req, res, parameters);
 

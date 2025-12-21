@@ -144,23 +144,34 @@ class TextToSpeechService {
       throw new Error('Text is required');
     }
 
-    // Limit text length (TTS has limits)
-    const maxLength = 5000;
-    const truncatedText = text.length > maxLength
-      ? text.substring(0, maxLength) + '...'
-      : text;
+    // Google TTS has a 5000 BYTE limit (not character limit)
+    // For multi-byte languages like Hindi, this is critical
+    const maxBytes = 4500; // Use 4500 to leave margin for safety
+    let processedText = text;
+
+    // Check byte length using Buffer
+    const byteLength = Buffer.byteLength(text, 'utf8');
+
+    if (byteLength > maxBytes) {
+      console.warn(`⚠️ Text exceeds ${maxBytes} bytes (${byteLength} bytes). Truncating...`);
+
+      // Smart truncation: try to break at sentence boundaries
+      processedText = this.truncateToByteLimit(text, maxBytes);
+    }
+
+    const finalByteLength = Buffer.byteLength(processedText, 'utf8');
 
     console.log(`🔊 Converting text to speech:`);
     console.log(`   Language: ${language}`);
     console.log(`   Voice: ${voiceGender}`);
-    console.log(`   Length: ${truncatedText.length} chars`);
+    console.log(`   Length: ${processedText.length} chars (${finalByteLength} bytes)`);
 
     try {
       const voiceConfig = this.getVoiceConfig(language, voiceGender);
 
       // Construct request
       const request = {
-        input: { text: truncatedText },
+        input: { text: processedText },
         voice: {
           languageCode: voiceConfig.languageCode,
           name: voiceConfig.name,
@@ -185,6 +196,52 @@ class TextToSpeechService {
       console.error('❌ Text-to-Speech error:', error.message);
       throw new Error(`Failed to generate speech: ${error.message}`);
     }
+  }
+
+  /**
+   * Truncate text to fit within byte limit, trying to break at sentence boundaries
+   *
+   * @param {string} text - Text to truncate
+   * @param {number} maxBytes - Maximum byte length
+   * @returns {string} Truncated text
+   */
+  truncateToByteLimit(text, maxBytes) {
+    // First, check if we need to truncate
+    if (Buffer.byteLength(text, 'utf8') <= maxBytes) {
+      return text;
+    }
+
+    // Try to find sentence boundaries (., ।, ?, !, etc.)
+    const sentenceEndings = /[.।?!\n]/g;
+    let bestText = '';
+    let lastValidText = '';
+
+    // Split into sentences
+    const sentences = text.split(sentenceEndings);
+
+    for (let i = 0; i < sentences.length; i++) {
+      const candidate = sentences.slice(0, i + 1).join('. ');
+      const candidateBytes = Buffer.byteLength(candidate, 'utf8');
+
+      if (candidateBytes <= maxBytes) {
+        lastValidText = candidate;
+      } else {
+        break;
+      }
+    }
+
+    // If we found valid sentences, use them
+    if (lastValidText) {
+      return lastValidText;
+    }
+
+    // Otherwise, truncate character by character (for very long single sentences)
+    let truncated = text;
+    while (Buffer.byteLength(truncated, 'utf8') > maxBytes) {
+      truncated = truncated.substring(0, truncated.length - 10); // Remove 10 chars at a time
+    }
+
+    return truncated + '...';
   }
 
   /**

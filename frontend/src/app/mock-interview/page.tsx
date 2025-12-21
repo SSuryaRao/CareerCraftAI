@@ -27,42 +27,180 @@ import {
   Users,
   Award,
   BarChart3,
-  XCircle
+  XCircle,
+  Code,
+  Monitor,
+  Briefcase
 } from 'lucide-react'
 import { questionPools, AptitudeQuestion } from '@/data/aptitude-questions'
-import { getRandomQuestions, calculateScore, formatTime, getCategoryKey, getQuestionPoolKey, getTestMetadata } from '@/lib/aptitude-utils'
+import { calculateScore, formatTime, getCategoryKey, getQuestionPoolKey, getTestMetadata } from '@/lib/aptitude-utils'
+import { fetchQuestionsByCategory, getRandomQuestions } from '@/lib/question-api'
 import { IntelligentInterviewMain } from '@/components/intelligent-interview/IntelligentInterviewMain'
+import CareerAssessment from '@/components/career-assessment/CareerAssessment'
+import DomainTestSelection from '@/components/aptitude/DomainTestSelection'
 
-// Mock data
-const domains = [
-  { value: 'data-science', label: 'Data Science' },
-  { value: 'web-development', label: 'Web Development' },
-  { value: 'cybersecurity', label: 'Cybersecurity' },
-  { value: 'cloud-computing', label: 'Cloud Computing' },
-  { value: 'ai-ml', label: 'AI/Machine Learning' },
-  { value: 'mobile-development', label: 'Mobile Development' },
+// Categories for role selection
+const interviewCategories = [
+  {
+    id: 'technical',
+    name: 'Technical',
+    icon: Code,
+    description: 'Software development & engineering roles'
+  },
+  {
+    id: 'it-infrastructure',
+    name: 'IT & Infrastructure',
+    icon: Monitor,
+    description: 'Systems, networks & cloud infrastructure'
+  },
+  {
+    id: 'business-management',
+    name: 'Business & Management',
+    icon: Briefcase,
+    description: 'Business, product & management roles'
+  }
 ]
 
-const rolesByDomain: { [key: string]: { value: string; label: string }[] } = {
-  'data-science': [
-    { value: 'data-scientist', label: 'Data Scientist' },
-    { value: 'data-analyst', label: 'Data Analyst' },
-    { value: 'ml-engineer', label: 'ML Engineer' },
-    { value: 'data-engineer', label: 'Data Engineer' },
+// Roles organized by category
+const rolesByCategory: Record<string, Array<{
+  id: string
+  name: string
+  icon: any
+  color: string
+  description: string
+}>> = {
+  'technical': [
+    {
+      id: 'frontend-developer',
+      name: 'Frontend Developer',
+      icon: Code,
+      color: 'from-blue-500 to-cyan-600',
+      description: 'UI/UX implementation with React, Vue, Angular'
+    },
+    {
+      id: 'backend-developer',
+      name: 'Backend Developer',
+      icon: Award,
+      color: 'from-green-500 to-emerald-600',
+      description: 'Server-side development with Node.js, Python, Java'
+    },
+    {
+      id: 'fullstack-developer',
+      name: 'Full-Stack Developer',
+      icon: Zap,
+      color: 'from-purple-500 to-indigo-600',
+      description: 'End-to-end application development'
+    },
+    {
+      id: 'data-scientist',
+      name: 'Data Scientist',
+      icon: BarChart3,
+      color: 'from-pink-500 to-rose-600',
+      description: 'Data analysis, ML models, and insights'
+    },
+    {
+      id: 'mobile-developer',
+      name: 'Mobile Developer',
+      icon: MessageSquareText,
+      color: 'from-orange-500 to-red-600',
+      description: 'iOS, Android, React Native, Flutter apps'
+    },
+    {
+      id: 'ai-ml-engineer',
+      name: 'AI/ML Engineer',
+      icon: BrainCircuit,
+      color: 'from-violet-500 to-purple-600',
+      description: 'Building and deploying AI/ML systems'
+    }
   ],
-  'web-development': [
-    { value: 'frontend-developer', label: 'Frontend Developer' },
-    { value: 'backend-developer', label: 'Backend Developer' },
-    { value: 'fullstack-developer', label: 'Full-Stack Developer' },
-    { value: 'ui-ux-designer', label: 'UI/UX Designer' },
+  'it-infrastructure': [
+    {
+      id: 'devops-engineer',
+      name: 'DevOps Engineer',
+      icon: Users,
+      color: 'from-blue-500 to-indigo-600',
+      description: 'CI/CD, automation, and infrastructure'
+    },
+    {
+      id: 'cloud-architect',
+      name: 'Cloud Architect',
+      icon: Award,
+      color: 'from-cyan-500 to-blue-600',
+      description: 'Cloud infrastructure design and implementation'
+    },
+    {
+      id: 'database-administrator',
+      name: 'Database Administrator',
+      icon: BarChart3,
+      color: 'from-emerald-500 to-teal-600',
+      description: 'Database management and optimization'
+    },
+    {
+      id: 'security-engineer',
+      name: 'Security Engineer',
+      icon: Target,
+      color: 'from-red-500 to-orange-600',
+      description: 'Security architecture and threat prevention'
+    },
+    {
+      id: 'network-engineer',
+      name: 'Network Engineer',
+      icon: Zap,
+      color: 'from-purple-500 to-pink-600',
+      description: 'Network design and infrastructure'
+    },
+    {
+      id: 'system-administrator',
+      name: 'System Administrator',
+      icon: Users,
+      color: 'from-gray-500 to-slate-600',
+      description: 'Server management and system maintenance'
+    }
   ],
-  'cybersecurity': [
-    { value: 'security-analyst', label: 'Security Analyst' },
-    { value: 'penetration-tester', label: 'Penetration Tester' },
-    { value: 'security-engineer', label: 'Security Engineer' },
-    { value: 'incident-responder', label: 'Incident Response Specialist' },
-  ],
-  // Add more as needed...
+  'business-management': [
+    {
+      id: 'business-analyst',
+      name: 'Business Analyst',
+      icon: BarChart3,
+      color: 'from-blue-500 to-indigo-600',
+      description: 'Requirements analysis and process optimization'
+    },
+    {
+      id: 'product-manager',
+      name: 'Product Manager',
+      icon: Target,
+      color: 'from-purple-500 to-pink-600',
+      description: 'Product strategy and roadmap planning'
+    },
+    {
+      id: 'project-manager',
+      name: 'Project Manager',
+      icon: Users,
+      color: 'from-green-500 to-emerald-600',
+      description: 'Project planning and team coordination'
+    },
+    {
+      id: 'hr-manager',
+      name: 'HR Manager',
+      icon: Users,
+      color: 'from-orange-500 to-amber-600',
+      description: 'Recruitment and talent management'
+    },
+    {
+      id: 'marketing-manager',
+      name: 'Marketing Manager',
+      icon: TrendingUp,
+      color: 'from-pink-500 to-rose-600',
+      description: 'Marketing strategy and growth'
+    },
+    {
+      id: 'operations-manager',
+      name: 'Operations Manager',
+      icon: Award,
+      color: 'from-emerald-500 to-teal-600',
+      description: 'Business operations and efficiency'
+    }
+  ]
 }
 
 const mockInterviewQuestions = [
@@ -108,13 +246,13 @@ const aptitudeTestSets = [
 
 
 type Mode = 'selection' | 'interview' | 'aptitude'
-type TabMode = 'interview-tab' | 'aptitude-tab' | 'intelligent-tab'
+type TabMode = 'interview-tab' | 'aptitude-tab' | 'intelligent-tab' | 'career-assessment-tab'
 
 export default function MockInterviewPage() {
   const { user } = useAuth()
   const [mode, setMode] = useState<Mode>('selection')
   const [activeTab, setActiveTab] = useState<TabMode>('intelligent-tab')
-  const [selectedDomain, setSelectedDomain] = useState('')
+  const [selectedInterviewCategory, setSelectedInterviewCategory] = useState<string>('technical')
   const [selectedRole, setSelectedRole] = useState('')
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0)
   const [userAnswer, setUserAnswer] = useState('')
@@ -129,8 +267,15 @@ export default function MockInterviewPage() {
   const [showResults, setShowResults] = useState(false)
   const [timeRemaining, setTimeRemaining] = useState(0)
   const [timeTaken, setTimeTaken] = useState(0)
+  const [isLoadingQuestions, setIsLoadingQuestions] = useState(false)
+  const [currentRoles, setCurrentRoles] = useState(rolesByCategory['technical'])
 
-  const availableRoles = selectedDomain ? rolesByDomain[selectedDomain] || [] : []
+  // Update roles when interview category changes
+  useEffect(() => {
+    const roles = rolesByCategory[selectedInterviewCategory] || []
+    setCurrentRoles(roles)
+    console.log('Interview category changed to:', selectedInterviewCategory, 'Roles:', roles.length)
+  }, [selectedInterviewCategory])
   const currentTestQuestion = testQuestions[currentAptitudeQuestion]
   const selectedOption = aptitudeAnswers[currentAptitudeQuestion] ?? null
 
@@ -151,13 +296,12 @@ export default function MockInterviewPage() {
     }
   }, [mode, showResults, timeRemaining])
 
-  const handleStartInterview = () => {
-    if (selectedDomain && selectedRole) {
-      setMode('interview')
-      setCurrentQuestionIndex(0)
-      setAnswers([])
-      setUserAnswer('')
-    }
+  const handleStartInterview = (roleId: string, roleName: string) => {
+    setSelectedRole(roleId)
+    setMode('interview')
+    setCurrentQuestionIndex(0)
+    setAnswers([])
+    setUserAnswer('')
   }
 
   const saveInterviewSession = async () => {
@@ -172,7 +316,7 @@ export default function MockInterviewPage() {
         },
         body: JSON.stringify({
           userId: user.uid,
-          domain: selectedDomain,
+          category: selectedInterviewCategory,
           role: selectedRole,
           questionsAnswered: answers.filter(a => a.trim()).length,
           totalQuestions: mockInterviewQuestions.length,
@@ -215,19 +359,39 @@ export default function MockInterviewPage() {
     }
   }
 
-  const handleStartAptitudeTest = (testId: number) => {
-    const metadata = getTestMetadata(testId)
-    const poolKey = getQuestionPoolKey(testId)
-    const randomQuestions = getRandomQuestions(questionPools[poolKey], metadata.questionCount)
+  const handleStartAptitudeTest = async (testId: number) => {
+    try {
+      setIsLoadingQuestions(true)
+      const metadata = getTestMetadata(testId)
+      let randomQuestions: AptitudeQuestion[]
 
-    setSelectedAptitudeTest(testId)
-    setTestQuestions(randomQuestions)
-    setCurrentAptitudeQuestion(0)
-    setAptitudeAnswers(new Array(randomQuestions.length).fill(null))
-    setShowResults(false)
-    setTimeRemaining(metadata.duration)
-    setTimeTaken(0)
-    setMode('aptitude')
+      // Basic aptitude tests (1-3) use local data, domain/company tests use API
+      if (testId >= 1 && testId <= 3) {
+        // Basic tests: use local questionPools
+        const poolKey = getQuestionPoolKey(testId)
+        const questionPool = questionPools[poolKey as keyof typeof questionPools]
+        randomQuestions = getRandomQuestions(questionPool, metadata.questionCount)
+      } else {
+        // Domain-specific (100-105) and company pattern tests (200-202): use API
+        const categoryKey = getCategoryKey(testId)
+        const allQuestions = await fetchQuestionsByCategory(categoryKey)
+        randomQuestions = getRandomQuestions(allQuestions, metadata.questionCount)
+      }
+
+      setSelectedAptitudeTest(testId)
+      setTestQuestions(randomQuestions)
+      setCurrentAptitudeQuestion(0)
+      setAptitudeAnswers(new Array(randomQuestions.length).fill(null))
+      setShowResults(false)
+      setTimeRemaining(metadata.duration)
+      setTimeTaken(0)
+      setMode('aptitude')
+    } catch (error) {
+      console.error('Error loading questions:', error)
+      alert('Failed to load questions. Please try again.')
+    } finally {
+      setIsLoadingQuestions(false)
+    }
   }
 
   const handleSelectOption = (optionIndex: number) => {
@@ -254,12 +418,8 @@ export default function MockInterviewPage() {
     try {
       const score = calculateScore(testQuestions, aptitudeAnswers)
 
-      // Get test metadata
-      const testSet = aptitudeTestSets.find(t => t.id === selectedAptitudeTest)
-      if (!testSet) {
-        console.error('Test set not found')
-        return
-      }
+      // Get test metadata using getTestMetadata which handles all test ID ranges
+      const metadata = getTestMetadata(selectedAptitudeTest!)
 
       // Calculate topic performance
       const topicPerformance: { [topic: string]: { correct: number; total: number } } = {}
@@ -284,7 +444,7 @@ export default function MockInterviewPage() {
         userId: user.uid,
         testId: selectedAptitudeTest!,
         testType: getCategoryKey(selectedAptitudeTest!),
-        testTitle: testSet.title,
+        testTitle: metadata.title,
         score: score.correctCount,
         percentage: score.percentage,
         timeTaken: timeTaken,
@@ -333,7 +493,7 @@ export default function MockInterviewPage() {
 
   const resetToSelection = () => {
     setMode('selection')
-    setSelectedDomain('')
+    setSelectedInterviewCategory('technical')
     setSelectedRole('')
     setSelectedAptitudeTest(null)
     setShowResults(false)
@@ -400,6 +560,18 @@ export default function MockInterviewPage() {
               >
                 <div className="flex gap-4 bg-gray-100/50 dark:bg-slate-800/50 rounded-2xl p-2 backdrop-blur-sm">
                   <Button
+                    onClick={() => setActiveTab('career-assessment-tab')}
+                    variant={activeTab === 'career-assessment-tab' ? 'default' : 'ghost'}
+                    className={`flex-1 font-semibold text-base py-6 transition-all duration-300 ${
+                      activeTab === 'career-assessment-tab'
+                        ? 'bg-gradient-to-r from-green-500 to-teal-600 text-white shadow-lg'
+                        : 'bg-white/80 dark:bg-slate-700/80 text-gray-700 dark:text-gray-200 hover:text-green-600 dark:hover:text-green-400 hover:bg-white dark:hover:bg-slate-700 hover:shadow-md'
+                    }`}
+                  >
+                    <Target className="w-5 h-5 mr-2" />
+                    Career Guide
+                  </Button>
+                  <Button
                     onClick={() => setActiveTab('intelligent-tab')}
                     variant={activeTab === 'intelligent-tab' ? 'default' : 'ghost'}
                     className={`flex-1 font-semibold text-base py-6 transition-all duration-300 ${
@@ -411,18 +583,6 @@ export default function MockInterviewPage() {
                     <Zap className="w-5 h-5 mr-2" />
                     AI Interview
                   </Button>
-                  {/* <Button
-                    onClick={() => setActiveTab('interview-tab')}
-                    variant={activeTab === 'interview-tab' ? 'default' : 'ghost'}
-                    className={`transition-all duration-300 ${
-                      activeTab === 'interview-tab'
-                        ? 'bg-gradient-to-r from-blue-500 to-indigo-600 text-white shadow-md'
-                        : 'text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-950/50'
-                    }`}
-                  >
-                    <MessageSquareText className="w-4 h-4 mr-2" />
-                    Basic Interview
-                  </Button> */}
                   <Button
                     onClick={() => setActiveTab('aptitude-tab')}
                     variant={activeTab === 'aptitude-tab' ? 'default' : 'ghost'}
@@ -446,6 +606,17 @@ export default function MockInterviewPage() {
       <div className="max-w-7xl mx-auto px-4 pb-20">
         {mode === 'selection' && (
           <>
+            {/* Career Assessment Section */}
+            {activeTab === 'career-assessment-tab' && (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.6 }}
+              >
+                <CareerAssessment />
+              </motion.div>
+            )}
+
             {/* Intelligent AI Interview Section */}
             {activeTab === 'intelligent-tab' && (
               <motion.div
@@ -460,65 +631,127 @@ export default function MockInterviewPage() {
             {/* Mock Interview Section */}
             {activeTab === 'interview-tab' && (
               <>
-                {/* Role & Domain Selector */}
+                {/* Category Selection */}
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.6 }}
+                  className="mb-8"
+                >
+                  <div className="text-center mb-6">
+                    <h2 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-2">
+                      Select Your Career Category
+                    </h2>
+                    <p className="text-lg text-gray-600 dark:text-gray-400">
+                      Choose the category that matches your career goals
+                    </p>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                    {interviewCategories.map((category) => {
+                      const Icon = category.icon
+                      const isSelected = selectedInterviewCategory === category.id
+
+                      return (
+                        <motion.div
+                          key={category.id}
+                          whileHover={{ scale: 1.02 }}
+                          whileTap={{ scale: 0.98 }}
+                        >
+                          <Card
+                            onClick={() => {
+                              setSelectedInterviewCategory(category.id)
+                              setSelectedRole('')
+                            }}
+                            className={`relative p-6 cursor-pointer transition-all duration-300 border-2 ${
+                              isSelected
+                                ? 'bg-orange-50 dark:bg-orange-950/30 border-orange-400 dark:border-orange-500 shadow-lg'
+                                : 'bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 hover:border-gray-300 dark:hover:border-slate-600 hover:shadow-md'
+                            }`}
+                          >
+                            {isSelected && (
+                              <div className="absolute top-3 right-3">
+                                <div className="w-3 h-3 bg-orange-500 rounded-full" />
+                              </div>
+                            )}
+
+                            <div className="flex items-center gap-4">
+                              <div className={`p-3 rounded-xl ${
+                                isSelected
+                                  ? 'bg-gradient-to-r from-orange-500 to-amber-500'
+                                  : 'bg-gray-100 dark:bg-slate-700'
+                              } transition-all duration-300`}>
+                                <Icon className={`w-6 h-6 ${isSelected ? 'text-white' : 'text-gray-600 dark:text-gray-300'}`} />
+                              </div>
+                              <span className={`text-lg font-semibold ${
+                                isSelected
+                                  ? 'text-orange-600 dark:text-orange-400'
+                                  : 'text-gray-800 dark:text-gray-200'
+                              }`}>
+                                {category.name}
+                              </span>
+                            </div>
+                          </Card>
+                        </motion.div>
+                      )
+                    })}
+                  </div>
+                </motion.div>
+
+                {/* Role Cards */}
+                <motion.div
+                  key={selectedInterviewCategory}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.3 }}
                   className="mb-12"
                 >
-                  <Card className="p-8 bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm border-0 shadow-xl dark:shadow-2xl dark:shadow-slate-950/50">
-                    <div className="flex items-center mb-6">
-                      <div className="p-3 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-2xl mr-4 shadow-lg">
-                        <Target className="w-6 h-6 text-white" />
-                      </div>
-                      <div>
-                        <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-1">Select Your Role & Domain</h2>
-                        <p className="text-gray-600 dark:text-gray-400">Choose your target domain and specific role for tailored interview questions</p>
-                      </div>
-                    </div>
+                  <div className="text-center mb-6">
+                    <h3 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">
+                      Choose Your Role
+                    </h3>
+                    <p className="text-gray-600 dark:text-gray-400">
+                      Select the role you want to practice for
+                    </p>
+                  </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                      <div>
-                        <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
-                          🎯 Career Domain
-                        </label>
-                        <Select
-                          options={domains}
-                          value={selectedDomain}
-                          onValueChange={(value) => {
-                            setSelectedDomain(value)
-                            setSelectedRole('')
-                          }}
-                          placeholder="Select a domain"
-                          className="text-base"
-                        />
-                      </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {currentRoles.map((role, index) => {
+                      const Icon = role.icon
+                      return (
+                        <motion.div
+                          key={role.id}
+                          initial={{ opacity: 0, y: 20 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ delay: index * 0.1 }}
+                        >
+                          <Card className="group p-6 h-full bg-white dark:bg-slate-800/80 border-0 shadow-lg hover:shadow-2xl transition-all duration-500 hover:scale-[1.02] cursor-pointer">
+                            <div className="flex items-center mb-4">
+                              <div className={`p-3 rounded-2xl bg-gradient-to-r ${role.color} shadow-lg group-hover:scale-110 transition-transform duration-300`}>
+                                <Icon className="w-6 h-6 text-white" />
+                              </div>
+                            </div>
 
-                      <div>
-                        <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
-                          👤 Job Role
-                        </label>
-                        <Select
-                          options={availableRoles}
-                          value={selectedRole}
-                          onValueChange={setSelectedRole}
-                          placeholder="Select a role"
-                          className="text-base"
-                          disabled={!selectedDomain}
-                        />
-                      </div>
-                    </div>
+                            <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-2 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                              {role.name}
+                            </h3>
 
-                    <Button
-                      onClick={handleStartInterview}
-                      disabled={!selectedDomain || !selectedRole}
-                      className="w-full md:w-auto bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white py-3 px-8 text-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-300"
-                    >
-                      <PlayCircle className="w-5 h-5 mr-2" />
-                      Start Mock Interview
-                    </Button>
-                  </Card>
+                            <p className="text-gray-600 dark:text-gray-400 mb-6 leading-relaxed text-sm">
+                              {role.description}
+                            </p>
+
+                            <Button
+                              onClick={() => handleStartInterview(role.id, role.name)}
+                              className={`w-full bg-gradient-to-r ${role.color} text-white shadow-lg group-hover:shadow-xl transition-all duration-300`}
+                            >
+                              <PlayCircle className="w-4 h-4 mr-2" />
+                              Start Interview
+                            </Button>
+                          </Card>
+                        </motion.div>
+                      )
+                    })}
+                  </div>
                 </motion.div>
 
                 {/* Interview Features */}
@@ -577,8 +810,23 @@ export default function MockInterviewPage() {
                   <h2 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-4">
                     Practice <span className="text-purple-600 dark:text-purple-400">Aptitude Tests</span>
                   </h2>
-                  <p className="text-xl text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
+                  <p className="text-xl text-gray-600 dark:text-gray-400 max-w-2xl mx-auto mb-8">
                     Sharpen your skills with our comprehensive aptitude test series
+                  </p>
+                </div>
+
+                {/* Domain-Specific and Company Pattern Tests */}
+                <div className="mb-12">
+                  <DomainTestSelection onStartTest={handleStartAptitudeTest} />
+                </div>
+
+                {/* Basic Aptitude Tests */}
+                <div className="text-center mb-6 mt-16">
+                  <h3 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">
+                    General Aptitude Tests
+                  </h3>
+                  <p className="text-gray-600 dark:text-gray-400">
+                    Build your foundational skills
                   </p>
                 </div>
 
@@ -666,11 +914,11 @@ export default function MockInterviewPage() {
                     <div className="space-y-2">
                       <div className="flex items-center text-sm text-gray-600 dark:text-gray-400">
                         <Target className="w-4 h-4 mr-2 text-indigo-500 dark:text-indigo-400" />
-                        <span>{rolesByDomain[selectedDomain]?.find(r => r.value === selectedRole)?.label}</span>
+                        <span>{currentRoles.find(r => r.id === selectedRole)?.name || 'Role'}</span>
                       </div>
                       <div className="flex items-center text-sm text-gray-600 dark:text-gray-400">
                         <BookOpen className="w-4 h-4 mr-2 text-blue-500 dark:text-blue-400" />
-                        <span>{domains.find(d => d.value === selectedDomain)?.label}</span>
+                        <span>{interviewCategories.find(c => c.id === selectedInterviewCategory)?.name || 'Category'}</span>
                       </div>
                     </div>
                   </div>

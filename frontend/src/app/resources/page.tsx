@@ -218,29 +218,29 @@ export default function ResourcesPage() {
             animate={{ opacity: 1, y: 0 }}
             className="text-center mb-12"
           >
-            <h1 className="text-4xl lg:text-6xl font-bold mb-6">
+            <h1 className="text-3xl sm:text-4xl lg:text-6xl font-bold mb-4 sm:mb-6 px-2">
               Career Resources Hub
             </h1>
-            <p className="text-xl text-white/95 max-w-3xl mx-auto mb-8">
+            <p className="text-base sm:text-xl text-white/95 max-w-3xl mx-auto mb-6 sm:mb-8 px-2">
               Access comprehensive career resources, guides, templates, and expert insights
               to accelerate your professional journey. Track your progress and build your skills systematically.
             </p>
 
             {/* Search Bar */}
-            <div className="max-w-3xl mx-auto bg-white/10 backdrop-blur-md rounded-2xl p-2 shadow-2xl border border-white/20">
-              <div className="flex gap-2">
+            <div className="max-w-3xl mx-auto bg-white/10 backdrop-blur-md rounded-xl sm:rounded-2xl p-2 shadow-2xl border border-white/20">
+              <div className="flex flex-col sm:flex-row gap-2">
                 <div className="relative flex-1">
-                  <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-300 w-5 h-5" />
+                  <Search className="absolute left-3 sm:left-4 top-1/2 transform -translate-y-1/2 text-gray-300 w-5 h-5" />
                   <Input
                     type="text"
-                    placeholder="Search resources, guides, templates..."
-                    className="pl-12 border-0 bg-white/5 text-white placeholder:text-gray-300 text-lg py-4 focus:ring-0 focus:bg-white/10"
+                    placeholder="Search resources..."
+                    className="pl-10 sm:pl-12 border-0 bg-white/5 text-white placeholder:text-gray-300 text-base sm:text-lg py-3 sm:py-4 focus:ring-0 focus:bg-white/10"
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                   />
                 </div>
                 <Button
-                  className="bg-white/20 hover:bg-white/30 backdrop-blur-sm text-white px-8 font-semibold shadow-lg border border-white/30"
+                  className="bg-white/20 hover:bg-white/30 backdrop-blur-sm text-white px-6 sm:px-8 py-3 font-semibold shadow-lg border border-white/30 w-full sm:w-auto"
                   onClick={() => {
                     setShowResourceFilters(true)
                   }}
@@ -251,7 +251,7 @@ export default function ResourcesPage() {
             </div>
 
             {/* Resource Stats */}
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 mt-12">
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mt-8 sm:mt-12 px-2">
               {[
                 { label: 'Resources Available', value: `${featuredResources.length}` },
                 { label: 'Learning Platforms', value: `${learningPlatforms.length}` },
@@ -265,8 +265,8 @@ export default function ResourcesPage() {
                   transition={{ delay: 0.1 * index }}
                   className="text-center"
                 >
-                  <div className="text-2xl lg:text-3xl font-bold text-white">{stat.value}</div>
-                  <div className="text-white/80 text-sm font-medium">{stat.label}</div>
+                  <div className="text-xl sm:text-2xl lg:text-3xl font-bold text-white">{stat.value}</div>
+                  <div className="text-white/80 text-xs sm:text-sm font-medium">{stat.label}</div>
                 </motion.div>
               ))}
             </div>
@@ -335,21 +335,21 @@ export default function ResourcesPage() {
         </div>
       </section>
 
-      <div className="max-w-7xl mx-auto px-4 py-12">
+      <div className="max-w-7xl mx-auto px-3 sm:px-4 py-8 sm:py-12">
         {/* Browse Categories Section */}
-        <section className="mb-16">
-          <div className="flex items-center justify-between mb-10">
+        <section className="mb-12 sm:mb-16">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6 sm:mb-10">
             <div>
-              <h2 className="text-4xl font-bold mb-3 bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
+              <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-2 sm:mb-3 bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
                 Browse Categories
               </h2>
-              <p className="text-gray-600 dark:text-gray-400 text-lg">Explore resources across different topics</p>
+              <p className="text-gray-600 dark:text-gray-400 text-sm sm:text-lg">Explore resources across different topics</p>
             </div>
-            <Button className="bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600 text-white px-6 py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all">
+            <Button className="bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600 text-white px-4 sm:px-6 py-2 sm:py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all text-sm sm:text-base w-full sm:w-auto">
               View All Categories
             </Button>
           </div>
-          <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-5">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-3 sm:gap-5">
             {resourceCategories.map((category, index) => (
               <motion.div
                 key={category.name}
@@ -359,13 +359,13 @@ export default function ResourcesPage() {
                 className="group cursor-pointer"
                 onClick={() => setSelectedCategory(category.name)}
               >
-                <div className="relative overflow-hidden rounded-2xl bg-white dark:bg-slate-800 border-2 border-gray-300 dark:border-slate-600 hover:border-indigo-300 dark:hover:border-indigo-500 p-6 text-center hover:shadow-2xl transition-all duration-500 hover:scale-105 h-full min-h-[180px] flex flex-col justify-center">
+                <div className="relative overflow-hidden rounded-xl sm:rounded-2xl bg-white dark:bg-slate-800 border-2 border-gray-300 dark:border-slate-600 hover:border-indigo-300 dark:hover:border-indigo-500 p-4 sm:p-6 text-center hover:shadow-2xl transition-all duration-500 hover:scale-105 h-full min-h-[140px] sm:min-h-[180px] flex flex-col justify-center">
                   <div className="absolute inset-0 bg-gradient-to-br from-transparent via-transparent to-purple-50 dark:to-purple-950/50 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-                  <div className={`w-16 h-16 ${category.color} rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform shadow-lg relative`}>
-                    <category.icon className="w-8 h-8 text-white relative z-10" />
+                  <div className={`w-12 h-12 sm:w-16 sm:h-16 ${category.color} rounded-xl sm:rounded-2xl flex items-center justify-center mx-auto mb-3 sm:mb-4 group-hover:scale-110 transition-transform shadow-lg relative`}>
+                    <category.icon className="w-6 h-6 sm:w-8 sm:h-8 text-white relative z-10" />
                   </div>
-                  <h3 className="font-bold text-gray-800 dark:text-gray-100 mb-2 text-base leading-tight group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors min-h-[2.5rem] flex items-center justify-center">{category.name}</h3>
-                  <p className="text-gray-500 dark:text-gray-400 text-sm font-semibold">{resourceCounts[category.name] || 0} resources</p>
+                  <h3 className="font-bold text-gray-800 dark:text-gray-100 mb-1 sm:mb-2 text-sm sm:text-base leading-tight group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors min-h-[2rem] sm:min-h-[2.5rem] flex items-center justify-center">{category.name}</h3>
+                  <p className="text-gray-500 dark:text-gray-400 text-xs sm:text-sm font-semibold">{resourceCounts[category.name] || 0} resources</p>
                 </div>
               </motion.div>
             ))}
@@ -373,20 +373,20 @@ export default function ResourcesPage() {
         </section>
 
         {/* Popular Learning Platforms Section - ENHANCED STYLING */}
-        <section className="mb-16">
-          <div className="flex items-center justify-between mb-10">
+        <section className="mb-12 sm:mb-16">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6 sm:mb-10">
             <div>
-              <h2 className="text-4xl font-bold mb-3 bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent">
+              <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-2 sm:mb-3 bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent">
                 Popular Learning Platforms
               </h2>
-              <p className="text-gray-600 dark:text-gray-400 text-lg">Discover top platforms for skill development</p>
+              <p className="text-gray-600 dark:text-gray-400 text-sm sm:text-lg">Discover top platforms for skill development</p>
             </div>
-            <div className="flex items-center space-x-4">
+            <div className="flex items-center">
               <Button
                 variant="outline"
                 size="sm"
                 onClick={() => setShowFilters(!showFilters)}
-                className="bg-gradient-to-r from-violet-50 to-purple-50 dark:from-violet-950 dark:to-purple-950 hover:from-violet-100 hover:to-purple-100 dark:hover:from-violet-900 dark:hover:to-purple-900 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-700 rounded-xl font-semibold shadow-sm hover:shadow-md transition-all"
+                className="bg-gradient-to-r from-violet-50 to-purple-50 dark:from-violet-950 dark:to-purple-950 hover:from-violet-100 hover:to-purple-100 dark:hover:from-violet-900 dark:hover:to-purple-900 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-700 rounded-xl font-semibold shadow-sm hover:shadow-md transition-all w-full sm:w-auto"
               >
                 <Filter className="w-4 h-4 mr-2" />
                 Filter
@@ -419,7 +419,7 @@ export default function ResourcesPage() {
           )}
 
           {/* Enhanced Platform Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
             {filteredPlatforms.slice(0, 8).map((platform, index) => (
               <motion.div
                 key={platform.id}
@@ -429,22 +429,22 @@ export default function ResourcesPage() {
                 className="group"
               >
                 <div
-                  className="relative bg-white dark:bg-slate-800 rounded-3xl p-6 flex flex-col hover:shadow-2xl transition-all duration-500 border-2 border-gray-300 dark:border-slate-600 overflow-hidden hover:border-indigo-300 dark:hover:border-indigo-500 h-full cursor-pointer hover:-translate-y-1"
+                  className="relative bg-white dark:bg-slate-800 rounded-2xl sm:rounded-3xl p-4 sm:p-6 flex flex-col hover:shadow-2xl transition-all duration-500 border-2 border-gray-300 dark:border-slate-600 overflow-hidden hover:border-indigo-300 dark:hover:border-indigo-500 h-full cursor-pointer hover:-translate-y-1"
                   onClick={() => handleExternalLink(platform.url)}
                 >
-                  <div className="flex items-start justify-between mb-4">
-                    <div className={`w-14 h-14 ${platform.color} rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform shadow-md`}>
-                      <platform.icon className="w-7 h-7 text-white" />
+                  <div className="flex items-start justify-between mb-3 sm:mb-4">
+                    <div className={`w-12 h-12 sm:w-14 sm:h-14 ${platform.color} rounded-lg sm:rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform shadow-md`}>
+                      <platform.icon className="w-6 h-6 sm:w-7 sm:h-7 text-white" />
                     </div>
                     <Badge variant="secondary" className="text-xs bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-blue-100 dark:hover:bg-blue-900">
                       {platform.category}
                     </Badge>
                   </div>
-                  <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-2 text-left text-lg">{platform.name}</h3>
-                  <p className="text-gray-600 dark:text-gray-300 text-sm mb-4 flex-grow text-left leading-relaxed">{platform.description}</p>
+                  <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-2 text-left text-base sm:text-lg">{platform.name}</h3>
+                  <p className="text-gray-600 dark:text-gray-300 text-xs sm:text-sm mb-3 sm:mb-4 flex-grow text-left leading-relaxed">{platform.description}</p>
                   <div className="flex items-center text-blue-600 dark:text-blue-400 group-hover:text-blue-700 dark:group-hover:text-blue-300 transition-colors mt-auto">
                     <ExternalLink className="w-4 h-4 mr-2" />
-                    <span className="text-sm font-medium">Visit Platform</span>
+                    <span className="text-xs sm:text-sm font-medium">Visit Platform</span>
                     <ChevronRight className="w-4 h-4 ml-auto group-hover:translate-x-1 transition-transform" />
                   </div>
                 </div>
@@ -466,24 +466,24 @@ export default function ResourcesPage() {
           )}
         </section>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8">
           {/* Main Content */}
-          <div className="lg:col-span-2 space-y-8">
+          <div className="lg:col-span-2 space-y-6 sm:space-y-8">
             {/* Featured Resources Section */}
             <section>
-              <div className="flex items-center justify-between mb-10">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6 sm:mb-10">
                 <div>
-                  <h2 className="text-3xl font-bold mb-1 bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent">
+                  <h2 className="text-2xl sm:text-3xl font-bold mb-1 bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent">
                     Featured Resources
                   </h2>
-                  <p className="text-gray-600 dark:text-gray-400 text-sm font-medium">Curated learning materials for your career growth</p>
+                  <p className="text-gray-600 dark:text-gray-400 text-xs sm:text-sm font-medium">Curated learning materials for your career growth</p>
                 </div>
-                <div className="flex items-center space-x-4">
+                <div className="flex items-center">
                   <Button
                     variant="outline"
                     size="sm"
                     onClick={() => setShowResourceFilters(!showResourceFilters)}
-                    className="bg-gradient-to-r from-violet-50 to-purple-50 dark:from-violet-950 dark:to-purple-950 hover:from-violet-100 hover:to-purple-100 dark:hover:from-violet-900 dark:hover:to-purple-900 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-700 rounded-xl font-semibold shadow-sm hover:shadow-md transition-all"
+                    className="bg-gradient-to-r from-violet-50 to-purple-50 dark:from-violet-950 dark:to-purple-950 hover:from-violet-100 hover:to-purple-100 dark:hover:from-violet-900 dark:hover:to-purple-900 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-700 rounded-xl font-semibold shadow-sm hover:shadow-md transition-all w-full sm:w-auto"
                   >
                     <Filter className="w-4 h-4 mr-2" />
                     Filter
@@ -497,11 +497,11 @@ export default function ResourcesPage() {
                   initial={{ opacity: 0, height: 0 }}
                   animate={{ opacity: 1, height: 'auto' }}
                   exit={{ opacity: 0, height: 0 }}
-                  className="mb-8 bg-gradient-to-br from-purple-50 to-blue-50 dark:from-purple-950/30 dark:to-blue-950/30 rounded-2xl p-6 border border-purple-200 dark:border-purple-800"
+                  className="mb-6 sm:mb-8 bg-gradient-to-br from-purple-50 to-blue-50 dark:from-purple-950/30 dark:to-blue-950/30 rounded-xl sm:rounded-2xl p-4 sm:p-6 border border-purple-200 dark:border-purple-800"
                 >
                   <div className="space-y-4">
                     <div>
-                      <label className="text-sm font-medium text-gray-700 mb-3 block">Type</label>
+                      <label className="text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 sm:mb-3 block">Type</label>
                       <div className="flex flex-wrap gap-2">
                         {resourceTypes.map((type) => (
                           <Button
@@ -517,7 +517,7 @@ export default function ResourcesPage() {
                       </div>
                     </div>
                     <div>
-                      <label className="text-sm font-medium text-gray-700 mb-3 block">Category</label>
+                      <label className="text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 sm:mb-3 block">Category</label>
                       <div className="flex flex-wrap gap-2">
                         {resourceCategoriesFilter.map((category) => (
                           <Button
@@ -548,7 +548,7 @@ export default function ResourcesPage() {
               )}
 
               {/* Resource List */}
-              <div className="space-y-6">
+              <div className="space-y-4 sm:space-y-6">
                 {filteredResources.map((resource, index) => (
                   <motion.div
                     key={resource.id}
@@ -556,108 +556,113 @@ export default function ResourcesPage() {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.05 * index }}
                   >
-                    <div className={`relative bg-white dark:bg-slate-800 rounded-3xl p-8 hover:shadow-2xl transition-all duration-500 border-2 border-gray-300 dark:border-slate-600 overflow-hidden hover:border-indigo-300 dark:hover:border-indigo-500 ${completedResources.includes(resource.id) ? 'ring-2 ring-green-300 dark:ring-green-500 bg-green-50 dark:bg-green-950/20' : ''}`}>
-                      <div className="flex flex-col sm:flex-row gap-6">
-                        <div className="w-24 h-24 bg-gradient-to-br from-blue-100 to-purple-100 dark:from-blue-900 dark:to-purple-900 rounded-xl flex items-center justify-center flex-shrink-0 mx-auto sm:mx-0 shadow-sm relative">
-                          <resource.icon className="w-8 h-8 text-blue-600 dark:text-blue-300" />
+                    <div className={`relative bg-white dark:bg-slate-800 rounded-2xl sm:rounded-3xl p-4 sm:p-6 lg:p-8 hover:shadow-2xl transition-all duration-500 border-2 border-gray-300 dark:border-slate-600 overflow-hidden hover:border-indigo-300 dark:hover:border-indigo-500 ${completedResources.includes(resource.id) ? 'ring-2 ring-green-300 dark:ring-green-500 bg-green-50 dark:bg-green-950/20' : ''}`}>
+                      <div className="flex flex-col sm:flex-row gap-4 sm:gap-6">
+                        <div className="w-16 h-16 sm:w-20 sm:h-20 lg:w-24 lg:h-24 bg-gradient-to-br from-blue-100 to-purple-100 dark:from-blue-900 dark:to-purple-900 rounded-lg sm:rounded-xl flex items-center justify-center flex-shrink-0 mx-auto sm:mx-0 shadow-sm relative">
+                          <resource.icon className="w-6 h-6 sm:w-7 sm:h-7 lg:w-8 lg:h-8 text-blue-600 dark:text-blue-300" />
                           {completedResources.includes(resource.id) && (
-                            <div className="absolute -top-2 -right-2 w-6 h-6 bg-green-500 rounded-full flex items-center justify-center">
-                              <CheckCircle2 className="w-4 h-4 text-white" />
+                            <div className="absolute -top-1 -right-1 sm:-top-2 sm:-right-2 w-5 h-5 sm:w-6 sm:h-6 bg-green-500 rounded-full flex items-center justify-center">
+                              <CheckCircle2 className="w-3 h-3 sm:w-4 sm:h-4 text-white" />
                             </div>
                           )}
                         </div>
                         
-                        <div className="flex-1">
-                          <div className="flex items-start justify-between mb-3">
-                            <div>
-                              <div className="flex items-center space-x-3 mb-2">
-                                <h3 className="text-2xl font-bold text-gray-800 dark:text-gray-100 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">{resource.title}</h3>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-start justify-between gap-2 mb-2 sm:mb-3">
+                            <div className="flex-1 min-w-0">
+                              <div className="flex flex-wrap items-center gap-2 mb-2">
+                                <h3 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-800 dark:text-gray-100 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">{resource.title}</h3>
                                 {resource.isPremium && (
-                                  <Badge className="bg-amber-100 text-amber-800 border border-amber-200">Premium</Badge>
+                                  <Badge className="bg-amber-100 text-amber-800 border border-amber-200 text-xs">Premium</Badge>
                                 )}
                                 {completedResources.includes(resource.id) && (
-                                  <Badge className="bg-green-100 text-green-800 border border-green-200">
+                                  <Badge className="bg-green-100 text-green-800 border border-green-200 text-xs hidden sm:flex">
                                     <CheckCircle2 className="w-3 h-3 mr-1" />
                                     Completed
                                   </Badge>
                                 )}
                               </div>
-                              <p className="text-gray-600 dark:text-gray-300 mb-3 leading-relaxed">{resource.description}</p>
+                              <p className="text-gray-600 dark:text-gray-300 mb-2 sm:mb-3 leading-relaxed text-sm sm:text-base line-clamp-2 sm:line-clamp-none">{resource.description}</p>
                             </div>
                             <button
                               onClick={(e) => {
                                 e.stopPropagation()
                                 toggleBookmark(resource.id)
                               }}
-                              className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-colors"
+                              className="p-1.5 sm:p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-colors flex-shrink-0"
                             >
                               <Bookmark
-                                className={`w-5 h-5 ${bookmarkedItems.includes(resource.id) ? 'fill-blue-500 text-blue-500 dark:fill-blue-400 dark:text-blue-400' : 'text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300'}`}
+                                className={`w-4 h-4 sm:w-5 sm:h-5 ${bookmarkedItems.includes(resource.id) ? 'fill-blue-500 text-blue-500 dark:fill-blue-400 dark:text-blue-400' : 'text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300'}`}
                               />
                             </button>
                           </div>
 
-                          <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-sm text-gray-700 dark:text-gray-300 mb-4">
+                          <div className="flex flex-wrap items-center gap-x-3 sm:gap-x-6 gap-y-1.5 sm:gap-y-2 text-xs sm:text-sm text-gray-700 dark:text-gray-300 mb-3 sm:mb-4">
                             <div className="flex items-center">
-                              <User className="w-4 h-4 mr-2 text-gray-500 dark:text-gray-400" />
-                              <span className="font-medium dark:text-gray-200">{resource.author}</span>
+                              <User className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2 text-gray-500 dark:text-gray-400" />
+                              <span className="font-medium dark:text-gray-200 truncate max-w-[100px] sm:max-w-none">{resource.author}</span>
                             </div>
                             <div className="flex items-center">
-                              <Clock className="w-4 h-4 mr-2 text-gray-500 dark:text-gray-400" />
+                              <Clock className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2 text-gray-500 dark:text-gray-400" />
                               <span>{resource.duration}</span>
                             </div>
                             <div className="flex items-center">
-                              <Download className="w-4 h-4 mr-2 text-gray-500 dark:text-gray-400" />
+                              <Download className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2 text-gray-500 dark:text-gray-400" />
                               <span>{formatNumber(resource.downloads)}</span>
                             </div>
                             <div className="flex items-center">
-                              <Star className="w-4 h-4 mr-2 text-yellow-500 fill-yellow-400" />
+                              <Star className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2 text-yellow-500 fill-yellow-400" />
                               <span className="font-medium">{resource.rating}</span>
                             </div>
                           </div>
 
-                          <div className="flex items-center justify-between">
-                            <div className="flex flex-wrap gap-2">
-                              {resource.tags.map((tag) => (
-                                <Badge key={tag} variant="secondary" className="text-xs bg-indigo-50 dark:bg-indigo-900 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-700">
+                          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
+                            <div className="flex flex-wrap gap-1.5 sm:gap-2">
+                              {resource.tags.slice(0, 3).map((tag) => (
+                                <Badge key={tag} variant="secondary" className="text-[10px] sm:text-xs bg-indigo-50 dark:bg-indigo-900 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-700">
                                   {tag}
                                 </Badge>
                               ))}
+                              {resource.tags.length > 3 && (
+                                <Badge variant="secondary" className="text-[10px] sm:text-xs bg-gray-50 dark:bg-gray-800 text-gray-600 dark:text-gray-400 border border-gray-200 dark:border-gray-600">
+                                  +{resource.tags.length - 3}
+                                </Badge>
+                              )}
                             </div>
-                            <div className="flex items-center space-x-3">
+                            <div className="flex items-center justify-between sm:justify-end gap-2 sm:gap-3">
                               {user ? (
-                                <div className="flex items-center space-x-2">
+                                <div className="flex items-center gap-1.5 sm:gap-2">
                                   <Checkbox
                                     id={`resource-${resource.id}`}
                                     checked={completedResources.includes(resource.id)}
                                     onCheckedChange={(checked) => handleResourceComplete(resource.id, checked as boolean)}
-                                    className="w-5 h-5"
+                                    className="w-4 h-4 sm:w-5 sm:h-5"
                                   />
                                   <label
                                     htmlFor={`resource-${resource.id}`}
-                                    className="text-sm font-medium text-gray-700 dark:text-gray-200 cursor-pointer flex items-center space-x-1"
+                                    className="text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-200 cursor-pointer flex items-center gap-1"
                                   >
                                     {completedResources.includes(resource.id) ? (
                                       <>
-                                        <CheckCircle2 className="w-4 h-4 text-green-600 dark:text-green-400" />
-                                        <span className="text-green-700 dark:text-green-400">Completed</span>
+                                        <CheckCircle2 className="w-3 h-3 sm:w-4 sm:h-4 text-green-600 dark:text-green-400" />
+                                        <span className="text-green-700 dark:text-green-400 hidden xs:inline">Completed</span>
                                       </>
                                     ) : (
-                                      <span>Mark Complete</span>
+                                      <span className="hidden xs:inline">Mark Complete</span>
                                     )}
                                   </label>
                                 </div>
                               ) : (
-                                <div className="text-sm text-gray-500 dark:text-gray-400">
-                                  <span>Sign in to track progress</span>
+                                <div className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 hidden sm:block">
+                                  <span>Sign in to track</span>
                                 </div>
                               )}
-                              <Button 
-                                className="bg-blue-600 hover:bg-blue-700 text-white shadow-sm"
+                              <Button
+                                className="bg-blue-600 hover:bg-blue-700 text-white shadow-sm text-xs sm:text-sm px-3 sm:px-4 py-1.5 sm:py-2"
                                 onClick={() => handleExternalLink(resource.externalUrl)}
                               >
                                 {resource.type === 'Template' ? 'Download' : 'Access'}
-                                <ExternalLink className="w-4 h-4 ml-2" />
+                                <ExternalLink className="w-3 h-3 sm:w-4 sm:h-4 ml-1.5 sm:ml-2" />
                               </Button>
                             </div>
                           </div>
@@ -693,40 +698,40 @@ export default function ResourcesPage() {
           </div>
 
           {/* Sidebar */}
-          <div className="space-y-6">
+          <div className="space-y-4 sm:space-y-6">
             {/* Progress Summary */}
             {user && userProgress && (
-              <div className="p-6 bg-gradient-to-br from-blue-50 to-purple-50 dark:from-blue-950/30 dark:to-purple-950/30 border-2 border-blue-200 dark:border-blue-800 rounded-2xl shadow-lg">
-                <h3 className="text-lg font-semibold mb-4 flex items-center text-gray-900 dark:text-gray-100">
-                  <Trophy className="w-5 h-5 mr-2 text-blue-500 dark:text-blue-400" />
+              <div className="p-4 sm:p-6 bg-gradient-to-br from-blue-50 to-purple-50 dark:from-blue-950/30 dark:to-purple-950/30 border-2 border-blue-200 dark:border-blue-800 rounded-xl sm:rounded-2xl shadow-lg">
+                <h3 className="text-base sm:text-lg font-semibold mb-3 sm:mb-4 flex items-center text-gray-900 dark:text-gray-100">
+                  <Trophy className="w-4 h-4 sm:w-5 sm:h-5 mr-2 text-blue-500 dark:text-blue-400" />
                   Your Progress
                 </h3>
-                <div className="space-y-4">
+                <div className="space-y-3 sm:space-y-4">
                   <div className="flex justify-between items-center">
-                    <span className="text-sm text-gray-700 dark:text-gray-300">Resources Completed</span>
-                    <span className="text-lg font-bold text-blue-600 dark:text-blue-400">
+                    <span className="text-xs sm:text-sm text-gray-700 dark:text-gray-300">Resources Completed</span>
+                    <span className="text-base sm:text-lg font-bold text-blue-600 dark:text-blue-400">
                       {completedResources.length}/{featuredResources.length}
                     </span>
                   </div>
                   <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-                    <div 
+                    <div
                       className="bg-blue-600 h-2 rounded-full transition-all duration-300"
                       style={{ width: `${(completedResources.length / featuredResources.length) * 100}%` }}
                     />
                   </div>
-                  <div className="grid grid-cols-2 gap-4 text-center">
+                  <div className="grid grid-cols-2 gap-3 sm:gap-4 text-center">
                     <div>
-                      <div className="text-lg font-bold text-orange-600 flex items-center justify-center">
-                        <Flame className="w-4 h-4 mr-1" />
+                      <div className="text-base sm:text-lg font-bold text-orange-600 flex items-center justify-center">
+                        <Flame className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
                         {userProgress.stats?.streak?.current || 0}
                       </div>
-                      <div className="text-xs text-gray-600 dark:text-gray-400">Day Streak</div>
+                      <div className="text-[10px] sm:text-xs text-gray-600 dark:text-gray-400">Day Streak</div>
                     </div>
                     <div>
-                      <div className="text-lg font-bold text-yellow-600 dark:text-yellow-400">
+                      <div className="text-base sm:text-lg font-bold text-yellow-600 dark:text-yellow-400">
                         {userProgress.achievements?.length || 0}
                       </div>
-                      <div className="text-xs text-gray-600 dark:text-gray-400">Achievements</div>
+                      <div className="text-[10px] sm:text-xs text-gray-600 dark:text-gray-400">Achievements</div>
                     </div>
                   </div>
                 </div>
@@ -734,16 +739,16 @@ export default function ResourcesPage() {
             )}
 
             {!user && (
-              <div className="p-6 bg-gradient-to-br from-gray-50 to-blue-50 dark:from-gray-900 dark:to-blue-950/30 border-2 border-gray-200 dark:border-gray-700 rounded-2xl shadow-lg">
-                <h3 className="text-lg font-semibold mb-4 flex items-center text-gray-900 dark:text-gray-100">
-                  <Trophy className="w-5 h-5 mr-2 text-gray-400 dark:text-gray-500" />
+              <div className="p-4 sm:p-6 bg-gradient-to-br from-gray-50 to-blue-50 dark:from-gray-900 dark:to-blue-950/30 border-2 border-gray-200 dark:border-gray-700 rounded-xl sm:rounded-2xl shadow-lg">
+                <h3 className="text-base sm:text-lg font-semibold mb-3 sm:mb-4 flex items-center text-gray-900 dark:text-gray-100">
+                  <Trophy className="w-4 h-4 sm:w-5 sm:h-5 mr-2 text-gray-400 dark:text-gray-500" />
                   Track Your Progress
                 </h3>
-                <p className="text-sm text-gray-600 dark:text-gray-300 mb-4">
+                <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-300 mb-3 sm:mb-4">
                   Sign in to start tracking your learning progress and unlock achievements!
                 </p>
                 <Button
-                  className="w-full bg-blue-600 hover:bg-blue-700 text-white"
+                  className="w-full bg-blue-600 hover:bg-blue-700 text-white text-sm sm:text-base"
                   onClick={() => window.location.href = '/login'}
                 >
                   Sign In
@@ -752,48 +757,48 @@ export default function ResourcesPage() {
             )}
 
             {/* Trending Topics */}
-            <div className="p-6 bg-white dark:bg-slate-800 border-2 border-gray-300 dark:border-slate-600 rounded-2xl shadow-lg">
-              <h3 className="text-lg font-semibold mb-4 flex items-center text-gray-900 dark:text-gray-100">
-                <TrendingUp className="w-5 h-5 mr-2 text-green-500 dark:text-green-400" />
+            <div className="p-4 sm:p-6 bg-white dark:bg-slate-800 border-2 border-gray-300 dark:border-slate-600 rounded-xl sm:rounded-2xl shadow-lg">
+              <h3 className="text-base sm:text-lg font-semibold mb-3 sm:mb-4 flex items-center text-gray-900 dark:text-gray-100">
+                <TrendingUp className="w-4 h-4 sm:w-5 sm:h-5 mr-2 text-green-500 dark:text-green-400" />
                 Trending Topics
               </h3>
-              <div className="space-y-3">
+              <div className="space-y-2 sm:space-y-3">
                 {trendingTopics.map((topic, index) => (
-                  <div key={index} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors cursor-pointer">
-                    <span className="font-medium text-gray-900 dark:text-gray-100 text-sm">{topic.name}</span>
-                    <span className="text-sm text-green-600 dark:text-green-400 font-bold">{topic.searches}</span>
+                  <div key={index} className="flex items-center justify-between p-2.5 sm:p-3 bg-gray-50 dark:bg-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors cursor-pointer">
+                    <span className="font-medium text-gray-900 dark:text-gray-100 text-xs sm:text-sm">{topic.name}</span>
+                    <span className="text-xs sm:text-sm text-green-600 dark:text-green-400 font-bold">{topic.searches}</span>
                   </div>
                 ))}
               </div>
             </div>
 
             {/* Upcoming Webinars */}
-            <div className="p-6 bg-white dark:bg-slate-800 border-2 border-gray-300 dark:border-slate-600 rounded-2xl shadow-lg">
-              <h3 className="text-lg font-semibold mb-4 flex items-center text-gray-900 dark:text-gray-100">
-                <Calendar className="w-5 h-5 mr-2 text-blue-500 dark:text-blue-400" />
+            <div className="p-4 sm:p-6 bg-white dark:bg-slate-800 border-2 border-gray-300 dark:border-slate-600 rounded-xl sm:rounded-2xl shadow-lg">
+              <h3 className="text-base sm:text-lg font-semibold mb-3 sm:mb-4 flex items-center text-gray-900 dark:text-gray-100">
+                <Calendar className="w-4 h-4 sm:w-5 sm:h-5 mr-2 text-blue-500 dark:text-blue-400" />
                 Upcoming Webinars
               </h3>
-              <div className="space-y-4">
+              <div className="space-y-3 sm:space-y-4">
                 {upcomingWebinars.slice(0, 3).map((webinar) => (
-                  <div key={webinar.id} className="p-4 bg-blue-50 dark:bg-blue-950/30 rounded-lg border border-blue-100 dark:border-blue-800">
-                    <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-2 text-sm">{webinar.title}</h4>
-                    <div className="text-xs text-gray-600 dark:text-gray-400 space-y-1">
+                  <div key={webinar.id} className="p-3 sm:p-4 bg-blue-50 dark:bg-blue-950/30 rounded-lg border border-blue-100 dark:border-blue-800">
+                    <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-2 text-xs sm:text-sm">{webinar.title}</h4>
+                    <div className="text-[10px] sm:text-xs text-gray-600 dark:text-gray-400 space-y-1">
                       <div className="flex items-center">
-                        <Calendar className="w-3 h-3 mr-2" />
-                        {webinar.date} at {webinar.time}
+                        <Calendar className="w-3 h-3 mr-1.5 sm:mr-2 flex-shrink-0" />
+                        <span className="truncate">{webinar.date} at {webinar.time}</span>
                       </div>
                       <div className="flex items-center">
-                        <User className="w-3 h-3 mr-2" />
-                        {webinar.speaker} • {webinar.company}
+                        <User className="w-3 h-3 mr-1.5 sm:mr-2 flex-shrink-0" />
+                        <span className="truncate">{webinar.speaker} • {webinar.company}</span>
                       </div>
                       <div className="flex items-center">
-                        <Users className="w-3 h-3 mr-2" />
+                        <Users className="w-3 h-3 mr-1.5 sm:mr-2 flex-shrink-0" />
                         {webinar.attendees} registered
                       </div>
                     </div>
-                    <Button 
-                      size="sm" 
-                      className="w-full mt-3 text-xs"
+                    <Button
+                      size="sm"
+                      className="w-full mt-2 sm:mt-3 text-[10px] sm:text-xs"
                       onClick={() => handleExternalLink(webinar.registrationUrl)}
                     >
                       Register Free
@@ -801,32 +806,32 @@ export default function ResourcesPage() {
                   </div>
                 ))}
               </div>
-              <Button variant="outline" className="w-full mt-4 dark:border-slate-500 dark:text-gray-200 dark:hover:bg-slate-700" size="sm">
+              <Button variant="outline" className="w-full mt-3 sm:mt-4 dark:border-slate-500 dark:text-gray-200 dark:hover:bg-slate-700 text-xs sm:text-sm" size="sm">
                 View All Webinars
               </Button>
             </div>
 
             {/* Newsletter Signup */}
-            <div className="p-6 bg-gradient-to-br from-purple-50 to-blue-50 dark:from-purple-950/30 dark:to-blue-950/30 border-2 border-purple-200 dark:border-purple-800 rounded-2xl shadow-lg">
-              <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-gray-100">Weekly Career Insights</h3>
-              <p className="text-gray-700 dark:text-gray-300 mb-4 text-sm leading-relaxed">
+            <div className="p-4 sm:p-6 bg-gradient-to-br from-purple-50 to-blue-50 dark:from-purple-950/30 dark:to-blue-950/30 border-2 border-purple-200 dark:border-purple-800 rounded-xl sm:rounded-2xl shadow-lg">
+              <h3 className="text-base sm:text-lg font-semibold mb-3 sm:mb-4 text-gray-900 dark:text-gray-100">Weekly Career Insights</h3>
+              <p className="text-gray-700 dark:text-gray-300 mb-3 sm:mb-4 text-xs sm:text-sm leading-relaxed">
                 Get the latest career resources, job market trends, and expert tips delivered to your inbox.
               </p>
-              <div className="space-y-3">
-                <Input type="email" placeholder="Enter your email" className="border-purple-200 dark:border-purple-700 dark:bg-slate-700 dark:text-gray-100" />
-                <Button className="w-full bg-purple-600 hover:bg-purple-700">
+              <div className="space-y-2 sm:space-y-3">
+                <Input type="email" placeholder="Enter your email" className="border-purple-200 dark:border-purple-700 dark:bg-slate-700 dark:text-gray-100 text-sm" />
+                <Button className="w-full bg-purple-600 hover:bg-purple-700 text-sm sm:text-base">
                   Subscribe Now
                 </Button>
               </div>
-              <p className="text-xs text-gray-600 dark:text-gray-400 mt-3">
+              <p className="text-[10px] sm:text-xs text-gray-600 dark:text-gray-400 mt-2 sm:mt-3">
                 Join 35,000+ professionals. Unsubscribe anytime.
               </p>
             </div>
 
             {/* Quick Access */}
-            <div className="p-6 bg-white dark:bg-slate-800 border-2 border-gray-300 dark:border-slate-600 rounded-2xl shadow-lg">
-              <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-gray-100">Quick Access</h3>
-              <div className="space-y-2">
+            <div className="p-4 sm:p-6 bg-white dark:bg-slate-800 border-2 border-gray-300 dark:border-slate-600 rounded-xl sm:rounded-2xl shadow-lg">
+              <h3 className="text-base sm:text-lg font-semibold mb-3 sm:mb-4 text-gray-900 dark:text-gray-100">Quick Access</h3>
+              <div className="space-y-1.5 sm:space-y-2">
                 {[
                   { name: 'Resume Builder', icon: FileText, url: 'https://www.canva.com/resumes/templates/' },
                   { name: 'Interview Prep', icon: Users, url: 'https://www.interviewbit.com/' },
@@ -835,12 +840,12 @@ export default function ResourcesPage() {
                 ].map((link, index) => (
                   <button
                     key={index}
-                    className="w-full flex items-center p-3 text-left hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg transition-colors group"
+                    className="w-full flex items-center p-2.5 sm:p-3 text-left hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg transition-colors group"
                     onClick={() => handleExternalLink(link.url)}
                   >
-                    <link.icon className="w-4 h-4 mr-3 text-blue-600 dark:text-blue-400" />
-                    <span className="font-medium text-gray-900 dark:text-gray-100 text-sm">{link.name}</span>
-                    <ExternalLink className="w-3 h-3 ml-auto text-gray-400 dark:text-gray-500 group-hover:text-gray-600 dark:group-hover:text-gray-300" />
+                    <link.icon className="w-4 h-4 mr-2 sm:mr-3 text-blue-600 dark:text-blue-400 flex-shrink-0" />
+                    <span className="font-medium text-gray-900 dark:text-gray-100 text-xs sm:text-sm">{link.name}</span>
+                    <ExternalLink className="w-3 h-3 ml-auto text-gray-400 dark:text-gray-500 group-hover:text-gray-600 dark:group-hover:text-gray-300 flex-shrink-0" />
                   </button>
                 ))}
               </div>

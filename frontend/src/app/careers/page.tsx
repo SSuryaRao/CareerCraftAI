@@ -625,22 +625,25 @@ export default function CareersPage() {
 
                     {/* Apply Now Button - Enhanced with gradient and shadow */}
                     <div className="relative z-10 mt-auto pt-4 border-t border-purple-200 dark:border-purple-800">
-                      <Button
-                        className="w-full bg-gradient-to-r from-purple-600 via-blue-600 to-purple-600 hover:from-purple-700 hover:via-blue-700 hover:to-purple-700 text-white font-semibold shadow-lg hover:shadow-xl transform hover:scale-[1.02] transition-all duration-200"
-                        onClick={(e) => {
-                          e.stopPropagation()
-                          if (job.applicationUrl) {
-                            window.open(job.applicationUrl, '_blank')
-                          } else if (job.applyUrl) {
-                            window.open(job.applyUrl, '_blank')
-                          } else {
-                            toast.error('Application link not available for this job')
-                          }
-                        }}
-                      >
-                        Apply Now
-                        <ChevronRight className="w-4 h-4 ml-2" />
-                      </Button>
+                      {(job.applicationUrl || job.applyUrl || job.url) ? (
+                        <a
+                          href={job.applicationUrl || job.applyUrl || job.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="w-full bg-gradient-to-r from-purple-600 via-blue-600 to-purple-600 hover:from-purple-700 hover:via-blue-700 hover:to-purple-700 text-white font-semibold shadow-lg hover:shadow-xl transform hover:scale-[1.02] transition-all duration-200 flex items-center justify-center py-2 px-4 rounded-md"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          Apply Now
+                          <ChevronRight className="w-4 h-4 ml-2" />
+                        </a>
+                      ) : (
+                        <Button
+                          className="w-full bg-gray-400 text-white font-semibold cursor-not-allowed"
+                          disabled
+                        >
+                          No Application Link
+                        </Button>
+                      )}
                     </div>
                   </Card>
                 </motion.div>
@@ -892,21 +895,25 @@ export default function CareersPage() {
                             </div>
                           )}
                         </div>
-                        <Button
-                          className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white px-4 py-3 rounded-xl font-bold text-sm shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300"
-                          onClick={(e) => {
-                            e.stopPropagation()
-                            const url = job.applicationUrl || job.applyUrl
-                            if (url) {
-                              window.open(url, '_blank')
-                            } else {
-                              toast.error('Application URL not available')
-                            }
-                          }}
-                        >
-                          Apply Now
-                          <ChevronRight className="w-4 h-4 ml-1 inline-block group-hover:translate-x-1 transition-transform" />
-                        </Button>
+                        {(job.applicationUrl || job.applyUrl || job.url) ? (
+                          <a
+                            href={job.applicationUrl || job.applyUrl || job.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white px-4 py-3 rounded-xl font-bold text-sm shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 flex items-center justify-center"
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            Apply Now
+                            <ChevronRight className="w-4 h-4 ml-1 inline-block" />
+                          </a>
+                        ) : (
+                          <Button
+                            className="w-full bg-gray-400 text-white px-4 py-3 rounded-xl font-bold text-sm cursor-not-allowed"
+                            disabled
+                          >
+                            No Application Link
+                          </Button>
+                        )}
                       </div>
                     </div>
                   </div>

@@ -13,16 +13,20 @@ router.post('/generate',
 );
 
 // Get personalized roadmap recommendations based on user's resume
+// Supports caching - only regenerates when needed or when forceRegenerate=true
 router.get('/personalized',
   authenticateUser,
-  checkUsageLimit('roadmapGeneration'),
   async (req, res, next) => {
     try {
       const userId = req.user.uid; // From auth middleware
+      const forceRegenerate = req.query.forceRegenerate === 'true';
 
       console.log('🎯 Fetching personalized roadmap for user:', userId);
+      if (forceRegenerate) {
+        console.log('🔄 Force regenerate requested');
+      }
 
-      const recommendations = await roadmapRecommender.getPersonalizedRoadmap(userId);
+      const recommendations = await roadmapRecommender.getPersonalizedRoadmap(userId, forceRegenerate);
 
       if (!recommendations) {
         console.log('ℹ️ No resume found, sending hasResume=false response');
@@ -34,17 +38,31 @@ router.get('/personalized',
         });
       }
 
-      console.log('✅ Personalized recommendations generated:', recommendations.recommendedDomain);
+      console.log('✅ Recommendations ready:', recommendations.recommendedDomain);
+      console.log(`📊 Source: ${recommendations.isCached ? 'Cached' : 'Newly Generated'} | Model: ${recommendations.modelUsed || 'unknown'}`);
       console.log('📤 Sending response to client...');
 
-      // Increment usage after successful generation
-      await incrementUsage(req, res, () => {});
+      // Only increment usage if recommendations were newly generated (not cached)
+      if (!recommendations.isCached) {
+        try {
+          await checkUsageLimit('roadmapGeneration')(req, res, async () => {
+            await incrementUsage(req, res, () => {});
+          });
+        } catch (usageError) {
+          // If usage limit is exceeded, still return cached data if available
+          console.warn('⚠️ Usage limit check failed but returning data anyway:', usageError.message);
+        }
+      }
 
       return res.status(200).json({
         success: true,
         hasResume: true,
-        message: 'Personalized roadmap recommendations generated',
-        data: recommendations
+        message: recommendations.isCached
+          ? 'Roadmap recommendations retrieved from cache'
+          : 'Personalized roadmap recommendations generated',
+        data: recommendations,
+        cached: recommendations.isCached || false,
+        modelUsed: recommendations.modelUsed || 'unknown'
       });
 
     } catch (error) {

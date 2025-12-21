@@ -2,6 +2,7 @@ const functions = require('@google-cloud/functions-framework');
 const axios = require('axios');
 const cheerio = require('cheerio');
 const { MongoClient } = require('mongodb');
+const Parser = require('rss-parser');
 
 // Environment variables
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/career-advisor';
@@ -46,25 +47,41 @@ functions.http('scrapeScholarships', async (req, res) => {
     const db = client.db('career-advisor');
     const scholarships = db.collection('scholarships');
 
-    console.log('🔍 Starting scholarship scraping with ScraperAPI...');
+    console.log('🔍 Starting scholarship scraping with ScraperAPI + new sources...');
 
-    // Scrape different sources
+    // Scrape different sources (added Indeed, Naukri, Indeed RSS)
     const results = await Promise.allSettled([
       scrapeBuddy4Study(),
       scrapeInternshala(),
       scrapeScholarshipsGovIn(),
+      scrapeIndeed(),           // NEW: Indeed internships
+      scrapeNaukri(),           // NEW: Naukri internships
+      scrapeIndeedRSS(),        // NEW: Indeed RSS scholarships (no API calls!)
     ]);
 
     // Collect all successful results
     const allData = [];
+    let expiredCount = 0;
+
     results.forEach((result, index) => {
       if (result.status === 'fulfilled') {
-        allData.push(...result.value);
-        console.log(`✅ Source ${index + 1} scraped: ${result.value.length} items`);
+        // Filter out expired listings
+        const validItems = result.value.filter(item => {
+          if (isExpired(item.deadline)) {
+            expiredCount++;
+            return false;
+          }
+          return true;
+        });
+
+        allData.push(...validItems);
+        console.log(`✅ Source ${index + 1} scraped: ${result.value.length} items (${validItems.length} active, ${result.value.length - validItems.length} expired)`);
       } else {
         console.error(`❌ Source ${index + 1} failed:`, result.reason.message);
       }
     });
+
+    console.log(`🗑️ Filtered out ${expiredCount} expired opportunities`);
 
     // Store in MongoDB with upsert
     let inserted = 0;
@@ -89,6 +106,19 @@ functions.http('scrapeScholarships', async (req, res) => {
       if (result.modifiedCount > 0) updated++;
     }
 
+    // Mark old expired items as inactive in database
+    const expireResult = await scholarships.updateMany(
+      {
+        deadline: { $lt: new Date() },
+        active: true
+      },
+      {
+        $set: { active: false }
+      }
+    );
+
+    console.log(`🔄 Marked ${expireResult.modifiedCount} old items as inactive`);
+
     const duration = Date.now() - startTime;
 
     console.log(`✅ Scraping complete in ${duration}ms`);
@@ -96,16 +126,21 @@ functions.http('scrapeScholarships', async (req, res) => {
 
     res.json({
       success: true,
-      message: 'Scholarship scraping completed',
+      message: 'Scholarship scraping completed with enhanced sources',
       stats: {
         total: allData.length,
         inserted,
         updated,
+        expired: expiredCount,
+        markedInactive: expireResult.modifiedCount,
         duration: `${duration}ms`,
         sources: {
           buddy4study: results[0].status === 'fulfilled' ? results[0].value.length : 0,
           internshala: results[1].status === 'fulfilled' ? results[1].value.length : 0,
           scholarshipsGovIn: results[2].status === 'fulfilled' ? results[2].value.length : 0,
+          indeed: results[3].status === 'fulfilled' ? results[3].value.length : 0,
+          naukri: results[4].status === 'fulfilled' ? results[4].value.length : 0,
+          indeedRSS: results[5].status === 'fulfilled' ? results[5].value.length : 0,
         }
       },
       timestamp: new Date().toISOString()
@@ -257,6 +292,168 @@ async function scrapeScholarshipsGovIn() {
     console.error('Error scraping gov portal:', error.message);
     return getGovernmentScholarshipsFallback();
   }
+}
+
+// Scrape Indeed for internships
+async function scrapeIndeed() {
+  const internships = [];
+
+  try {
+    console.log('🔍 Scraping Indeed India...');
+
+    const url = 'https://in.indeed.com/jobs?q=internship&l=India&sort=date&limit=50';
+    const html = await fetchWithScraperAPI(url);
+    const $ = cheerio.load(html);
+
+    // Parse job listings (Indeed uses different selectors)
+    $('.job_seen_beacon, .jobsearch-ResultsList .result, .tapItem').each((i, elem) => {
+      try {
+        const $elem = $(elem);
+
+        const title = $elem.find('.jobTitle, h2.jobTitle span').first().text().trim();
+        const company = $elem.find('.companyName').first().text().trim();
+        const location = $elem.find('.companyLocation').first().text().trim();
+        const description = $elem.find('.job-snippet').first().text().trim();
+        const link = $elem.find('a.jcs-JobTitle').first().attr('href') || $elem.find('a').first().attr('href');
+        const salaryText = $elem.find('.salary-snippet, .metadata.salary-snippet-container').first().text().trim();
+
+        if (title && title.length > 3 && title.toLowerCase().includes('intern')) {
+          internships.push({
+            title: title.substring(0, 200),
+            provider: company.substring(0, 100) || 'Various Companies',
+            amount: salaryText || 'Not specified',
+            eligibility: description.substring(0, 500) || `Location: ${location || 'India'}`,
+            deadline: new Date(Date.now() + 45 * 24 * 60 * 60 * 1000), // 45 days from now
+            link: link?.startsWith('http') ? link : `https://in.indeed.com${link}`,
+            category: 'Internship',
+            domain: categorizeDomain(title, description),
+            trending: i < 5,
+            active: true,
+            scrapedAt: new Date(),
+            source: 'indeed'
+          });
+        }
+      } catch (itemError) {
+        console.warn('Error parsing Indeed item:', itemError.message);
+      }
+    });
+
+    console.log(`✅ Indeed: ${internships.length} internships`);
+  } catch (error) {
+    console.error('Error scraping Indeed:', error.message);
+  }
+
+  return internships;
+}
+
+// Scrape Naukri.com for internships
+async function scrapeNaukri() {
+  const internships = [];
+
+  try {
+    console.log('🔍 Scraping Naukri.com...');
+
+    const url = 'https://www.naukri.com/internship-jobs';
+    const html = await fetchWithScraperAPI(url);
+    const $ = cheerio.load(html);
+
+    // Parse job listings (Naukri uses specific selectors)
+    $('.jobTuple, .srp-tuple, article.jobTuple').each((i, elem) => {
+      try {
+        const $elem = $(elem);
+
+        const title = $elem.find('.title, .jobTuple-heading').first().text().trim();
+        const company = $elem.find('.companyInfo, .comp-name').first().text().trim();
+        const location = $elem.find('.location, .locWdth').first().text().trim();
+        const experience = $elem.find('.experience, .expwdth').first().text().trim();
+        const salary = $elem.find('.salary, .salaryWdth').first().text().trim();
+        const link = $elem.find('a.title').first().attr('href');
+        const description = $elem.find('.job-description').first().text().trim();
+
+        if (title && title.length > 3) {
+          internships.push({
+            title: title.substring(0, 200),
+            provider: company.substring(0, 100) || 'Various Companies',
+            amount: salary || 'Not specified',
+            eligibility: `Experience: ${experience || 'Fresher'}. Location: ${location || 'India'}. ${description.substring(0, 300)}`,
+            deadline: new Date(Date.now() + 40 * 24 * 60 * 60 * 1000), // 40 days from now
+            link: link?.startsWith('http') ? link : `https://www.naukri.com${link}`,
+            category: 'Internship',
+            domain: categorizeDomain(title, description),
+            trending: i < 5,
+            active: true,
+            scrapedAt: new Date(),
+            source: 'naukri'
+          });
+        }
+      } catch (itemError) {
+        console.warn('Error parsing Naukri item:', itemError.message);
+      }
+    });
+
+    console.log(`✅ Naukri: ${internships.length} internships`);
+  } catch (error) {
+    console.error('Error scraping Naukri:', error.message);
+  }
+
+  return internships;
+}
+
+// Scrape Indeed RSS feed for scholarships
+async function scrapeIndeedRSS() {
+  const scholarships = [];
+
+  try {
+    console.log('🔍 Scraping Indeed RSS for scholarships...');
+
+    const parser = new Parser();
+    const rssUrl = 'https://www.indeed.com/rss?q=scholarship&l=India';
+
+    // RSS doesn't need ScraperAPI - it's free and unrestricted
+    const feed = await parser.parseURL(rssUrl);
+
+    feed.items.forEach((item, i) => {
+      try {
+        const title = item.title || '';
+        const description = item.contentSnippet || item.description || '';
+        const link = item.link || '';
+        const pubDate = item.pubDate ? new Date(item.pubDate) : new Date();
+
+        if (title && title.length > 3) {
+          scholarships.push({
+            title: title.substring(0, 200),
+            provider: 'Various Organizations',
+            amount: 'See details',
+            eligibility: description.substring(0, 500) || 'Check listing for eligibility details',
+            deadline: new Date(Date.now() + 60 * 24 * 60 * 60 * 1000), // 60 days from now
+            link: link,
+            category: categorizeScholarship(title, description),
+            domain: categorizeDomain(title, description),
+            trending: i < 3,
+            active: true,
+            scrapedAt: new Date(),
+            source: 'indeed-rss'
+          });
+        }
+      } catch (itemError) {
+        console.warn('Error parsing Indeed RSS item:', itemError.message);
+      }
+    });
+
+    console.log(`✅ Indeed RSS: ${scholarships.length} scholarships`);
+  } catch (error) {
+    console.error('Error scraping Indeed RSS:', error.message);
+  }
+
+  return scholarships;
+}
+
+// Helper: Check if opportunity is expired
+function isExpired(deadline) {
+  if (!deadline) return false;
+  const now = new Date();
+  const deadlineDate = new Date(deadline);
+  return deadlineDate < now;
 }
 
 // Helper: Parse date strings

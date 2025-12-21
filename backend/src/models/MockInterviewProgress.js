@@ -104,7 +104,18 @@ const mockInterviewProgressSchema = new mongoose.Schema({
     testType: {
       type: String,
       required: true,
-      enum: ['logical-reasoning', 'quantitative-aptitude', 'verbal-ability']
+      enum: [
+        // Basic aptitude tests (1-3)
+        'logical-reasoning', 'quantitative-aptitude', 'verbal-ability',
+        // Technical domains (100-105)
+        'frontend', 'backend', 'fullstack', 'data-science', 'mobile', 'ai-ml',
+        // IT & Infrastructure domains (200-205)
+        'devops', 'cloud', 'database', 'cybersecurity', 'network', 'sysadmin',
+        // Business & Management domains (300-305)
+        'business-analyst', 'product-manager', 'project-manager', 'hr-talent', 'marketing', 'finance',
+        // Company pattern tests (400-402)
+        'faang', 'startup', 'service-based'
+      ]
     },
     testTitle: {
       type: String,
@@ -201,16 +212,13 @@ mockInterviewProgressSchema.methods.getStats = function() {
     : 0;
 
   // Group by test type
-  const testsByType = {
-    'logical-reasoning': [],
-    'quantitative-aptitude': [],
-    'verbal-ability': []
-  };
+  const testsByType = {};
 
   this.aptitudeTests.forEach(test => {
-    if (testsByType[test.testType]) {
-      testsByType[test.testType].push(test);
+    if (!testsByType[test.testType]) {
+      testsByType[test.testType] = [];
     }
+    testsByType[test.testType].push(test);
   });
 
   // Calculate performance by type

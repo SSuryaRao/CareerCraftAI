@@ -189,32 +189,44 @@ Return ONLY the JSON object, no markdown formatting.`;
 }
 
 /**
- * Create training example in Vertex AI format
+ * Create training example in Gemini fine-tuning format
+ * Gemini expects: { contents: [{ role, parts: [{ text }] }] }
  */
 function createTrainingExample(resumeData, analysis) {
   const truncatedText = resumeData.text.substring(0, 6000);
 
   return {
-    text_input: `Analyze this resume for ATS compatibility and provide detailed feedback.
+    contents: [
+      {
+        role: "user",
+        parts: [{
+          text: `Analyze this resume for ATS compatibility and provide detailed feedback.
 
 RESUME TEXT:
 ${truncatedText}
 
-Provide your analysis in JSON format with overall score (0-100), individual scores for keywords/formatting/experience/skills, improvement suggestions with priority levels, keyword analysis with found/missing/suggested keywords, and lists of strengths and weaknesses.`,
-
-    output: JSON.stringify({
-      overallScore: analysis.overallScore,
-      scores: analysis.scores,
-      suggestions: analysis.suggestions.slice(0, 12),
-      keywordAnalysis: {
-        found: analysis.keywordAnalysis?.found?.slice(0, 20) || [],
-        missing: analysis.keywordAnalysis?.missing?.slice(0, 15) || [],
-        suggested: analysis.keywordAnalysis?.suggested?.slice(0, 15) || [],
-        density: analysis.keywordAnalysis?.density || 0
+Provide your analysis in JSON format with overall score (0-100), individual scores for keywords/formatting/experience/skills, improvement suggestions with priority levels, keyword analysis with found/missing/suggested keywords, and lists of strengths and weaknesses.`
+        }]
       },
-      strengths: analysis.strengths?.slice(0, 8) || [],
-      weaknesses: analysis.weaknesses?.slice(0, 8) || []
-    }, null, 2)
+      {
+        role: "model",
+        parts: [{
+          text: JSON.stringify({
+            overallScore: analysis.overallScore,
+            scores: analysis.scores,
+            suggestions: analysis.suggestions.slice(0, 12),
+            keywordAnalysis: {
+              found: analysis.keywordAnalysis?.found?.slice(0, 20) || [],
+              missing: analysis.keywordAnalysis?.missing?.slice(0, 15) || [],
+              suggested: analysis.keywordAnalysis?.suggested?.slice(0, 15) || [],
+              density: analysis.keywordAnalysis?.density || 0
+            },
+            strengths: analysis.strengths?.slice(0, 8) || [],
+            weaknesses: analysis.weaknesses?.slice(0, 8) || []
+          }, null, 2)
+        }]
+      }
+    ]
   };
 }
 
@@ -494,6 +506,17 @@ async function main() {
 
     console.log(`✅ Training data: ${trainingFile} (${training.length} examples)`);
     console.log(`✅ Validation data: ${validationFile} (${validation.length} examples)\n`);
+
+    // Calculate score statistics from all examples
+    const scores = allExamples.map(ex => {
+      const msg = ex.messages.find(m => m.role === 'model');
+      const match = msg?.content.match(/"atsScore":\s*(\d+)/);
+      return match ? parseInt(match[1]) : 0;
+    }).filter(s => s > 0);
+
+    const avgScore = scores.length > 0 ? (scores.reduce((a, b) => a + b, 0) / scores.length).toFixed(1) : 0;
+    const minScore = scores.length > 0 ? Math.min(...scores) : 0;
+    const maxScore = scores.length > 0 ? Math.max(...scores) : 0;
 
     // Generate statistics
     const stats = {

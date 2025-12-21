@@ -1,14 +1,17 @@
 const Resume = require('../models/Resume');
 const vertexAI = require('./vertexAI');
+const fineTunedAI = require('./fineTunedAI');
 
 class RoadmapRecommender {
 
   /**
    * Get personalized roadmap recommendations based on user's latest resume
+   * Uses cached recommendations if available, only regenerates when needed
    * @param {string} userId - Firebase UID
+   * @param {boolean} forceRegenerate - Force regeneration even if cached data exists
    * @returns {Promise<Object|null>} Roadmap recommendations or null if no resume found
    */
-  async getPersonalizedRoadmap(userId) {
+  async getPersonalizedRoadmap(userId, forceRegenerate = false) {
     try {
       // 1. Get user's latest completed resume
       const latestResume = await Resume.findOne({
@@ -24,6 +27,27 @@ class RoadmapRecommender {
 
       console.log('📄 Found resume for roadmap recommendation:', latestResume._id);
 
+      // 2. Check if cached recommendations exist and are valid
+      if (!forceRegenerate && latestResume.roadmapRecommendations?.careerDomain) {
+        console.log('✅ Using cached roadmap recommendations');
+        return {
+          recommendedDomain: latestResume.roadmapRecommendations.careerDomain,
+          skillLevel: latestResume.roadmapRecommendations.skillLevel,
+          confidence: latestResume.roadmapRecommendations.confidence,
+          reasons: latestResume.roadmapRecommendations.reasons,
+          skillGaps: latestResume.roadmapRecommendations.skillGaps,
+          nextSteps: latestResume.roadmapRecommendations.nextSteps,
+          currentStrengths: latestResume.roadmapRecommendations.currentStrengths,
+          improvementAreas: latestResume.roadmapRecommendations.improvementAreas,
+          resumeId: latestResume._id,
+          analyzedAt: latestResume.roadmapRecommendations.generatedAt || latestResume.updatedAt,
+          isCached: true,
+          modelUsed: latestResume.roadmapRecommendations.modelUsed || 'base'
+        };
+      }
+
+      console.log('🔄 Generating new roadmap recommendations...');
+
       // 2. Extract key information from resume analysis
       const skills = latestResume.atsAnalysis?.keywordAnalysis?.found || [];
       const missingSkills = latestResume.atsAnalysis?.keywordAnalysis?.missing || [];
@@ -37,7 +61,7 @@ class RoadmapRecommender {
 
       console.log('🎯 User profile:', { skills: skills.length, industry, skillLevel });
 
-      // 4. Generate personalized roadmap using Vertex AI
+      // 4. Generate personalized roadmap using AI (fine-tuned or base)
       const roadmapSuggestions = await this.generateRoadmapWithAI({
         currentSkills: skills,
         missingSkills: missingSkills,
@@ -50,7 +74,8 @@ class RoadmapRecommender {
         textLength: latestResume.textLength
       });
 
-      return {
+      // 5. Prepare recommendation data
+      const recommendations = {
         recommendedDomain: roadmapSuggestions.careerDomain,
         skillLevel: roadmapSuggestions.skillLevel || skillLevel,
         confidence: roadmapSuggestions.confidence,
@@ -60,8 +85,34 @@ class RoadmapRecommender {
         currentStrengths: strengths.slice(0, 3),
         improvementAreas: weaknesses.slice(0, 3),
         resumeId: latestResume._id,
-        analyzedAt: latestResume.updatedAt
+        analyzedAt: new Date(),
+        isCached: false,
+        modelUsed: roadmapSuggestions.modelUsed || 'base'
       };
+
+      // 6. Save recommendations to resume document for caching
+      try {
+        latestResume.roadmapRecommendations = {
+          careerDomain: recommendations.recommendedDomain,
+          skillLevel: recommendations.skillLevel,
+          confidence: recommendations.confidence,
+          reasons: recommendations.reasons,
+          skillGaps: recommendations.skillGaps,
+          nextSteps: recommendations.nextSteps,
+          currentStrengths: recommendations.currentStrengths,
+          improvementAreas: recommendations.improvementAreas,
+          generatedAt: new Date(),
+          lastUpdated: new Date(),
+          modelUsed: recommendations.modelUsed
+        };
+        await latestResume.save();
+        console.log('💾 Roadmap recommendations saved to resume document');
+      } catch (saveError) {
+        console.error('⚠️ Failed to save recommendations to resume:', saveError.message);
+        // Continue even if save fails
+      }
+
+      return recommendations;
 
     } catch (error) {
       console.error('Error generating personalized roadmap:', error);
@@ -102,11 +153,18 @@ class RoadmapRecommender {
   }
 
   /**
-   * Use Vertex AI to generate smart roadmap recommendations
+   * Use AI (fine-tuned or base) to generate smart roadmap recommendations
    * @param {Object} userData - User profile data extracted from resume
    * @returns {Promise<Object>} AI-generated recommendations
    */
   async generateRoadmapWithAI(userData) {
+    // Determine which AI service to use
+    const useFuneTunedModel = process.env.USE_FINE_TUNED_MODEL === 'true';
+    const aiService = useFuneTunedModel && fineTunedAI.isReady() ? fineTunedAI : vertexAI;
+    const modelType = aiService === fineTunedAI ? 'Fine-Tuned Model' : 'Base Vertex AI';
+
+    console.log(`🤖 Using ${modelType} for roadmap recommendations`);
+
     const prompt = `You are a career advisor. Analyze this candidate's resume profile and recommend the best career roadmap.
 
 CANDIDATE PROFILE:
@@ -155,7 +213,7 @@ IMPORTANT:
     try {
       console.log('🤖 Generating AI recommendations...');
 
-      const responseText = await vertexAI.generateContent(
+      const responseText = await aiService.generateContent(
         prompt,
         3, // 3 retries
         {
@@ -190,6 +248,9 @@ IMPORTANT:
 
         console.log('✅ AI recommendations generated successfully');
         console.log(`   Domain: ${recommendations.careerDomain}, Confidence: ${recommendations.confidence}%`);
+
+        // Add model information
+        recommendations.modelUsed = aiService === fineTunedAI ? 'fine-tuned' : 'base';
       } catch (parseError) {
         console.error('❌ JSON Parse Error:', parseError.message);
         console.error('📄 Response length:', jsonResponse.length, 'characters');
@@ -199,15 +260,18 @@ IMPORTANT:
         // Fallback recommendations
         console.log('⚠️ Using fallback recommendations due to parse error');
         recommendations = this.getFallbackRecommendations(userData);
+        recommendations.modelUsed = 'fallback';
       }
 
       return recommendations;
 
     } catch (error) {
-      console.error('❌ Vertex AI recommendation failed:', error.message);
+      console.error('❌ AI recommendation failed:', error.message);
 
       // Return fallback recommendations
-      return this.getFallbackRecommendations(userData);
+      const fallback = this.getFallbackRecommendations(userData);
+      fallback.modelUsed = 'fallback';
+      return fallback;
     }
   }
 

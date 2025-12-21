@@ -77,6 +77,7 @@ const languages = [
   { code: 'gu', name: 'ગુજરાતી (Gujarati)', flag: '🇮🇳', ttsSupported: true },
   { code: 'kn', name: 'ಕನ್ನಡ (Kannada)', flag: '🇮🇳', ttsSupported: true },
   { code: 'ml', name: 'മലയാളം (Malayalam)', flag: '🇮🇳', ttsSupported: true },
+  { code: 'or', name: 'ଓଡ଼ିଆ (Odia)', flag: '🇮🇳', ttsSupported: false },
 ]
 
 const quickActions = [
@@ -121,7 +122,7 @@ function MentorDropdown({
 
       {/* Dropdown */}
       <div
-        className="fixed top-20 right-6 w-80 bg-white dark:bg-slate-800 border border-gray-200 dark:border-white/10 rounded-xl shadow-2xl z-[999999]"
+        className="fixed top-20 left-4 right-4 sm:left-auto sm:right-6 sm:w-80 max-w-sm bg-white dark:bg-slate-800 border border-gray-200 dark:border-white/10 rounded-xl shadow-2xl z-[999999]"
       >
         {mentorPersonas.map((mentor) => (
           <button
@@ -130,15 +131,15 @@ function MentorDropdown({
               onSelectMentor(mentor)
               onClose()
             }}
-            className={`w-full text-left p-4 hover:bg-blue-50 dark:hover:bg-white/10 border-b border-gray-200 dark:border-white/5 last:border-b-0 transition-colors first:rounded-t-xl last:rounded-b-xl ${
+            className={`w-full text-left p-3 sm:p-4 hover:bg-blue-50 dark:hover:bg-white/10 border-b border-gray-200 dark:border-white/5 last:border-b-0 transition-colors first:rounded-t-xl last:rounded-b-xl min-h-[60px] ${
               selectedMentor.id === mentor.id ? 'bg-blue-100 dark:bg-violet-600/20' : ''
             }`}
           >
             <div className="flex items-center space-x-3">
-              <div className="text-2xl">{mentor.avatar}</div>
-              <div>
-                <div className="font-medium text-gray-900 dark:text-white">{mentor.name}</div>
-                <div className="text-sm text-gray-600 dark:text-gray-400">{mentor.description}</div>
+              <div className="text-xl sm:text-2xl flex-shrink-0">{mentor.avatar}</div>
+              <div className="min-w-0 flex-1">
+                <div className="font-medium text-sm sm:text-base text-gray-900 dark:text-white truncate">{mentor.name}</div>
+                <div className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 line-clamp-1">{mentor.description}</div>
               </div>
             </div>
           </button>
@@ -154,7 +155,6 @@ export default function AIMentor() {
   const [isRecording, setIsRecording] = useState(false)
   const [selectedMentor, setSelectedMentor] = useState(mentorPersonas[0])
   const [selectedLanguage, setSelectedLanguage] = useState(languages[0])
-  const [isSpeaking, setIsSpeaking] = useState(false)
   const [isTyping, setIsTyping] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [copiedMessageId, setCopiedMessageId] = useState<string | null>(null)
@@ -181,7 +181,6 @@ export default function AIMentor() {
       // Errors will be handled by individual button click handlers
       console.error('Voice error:', error)
       setIsRecording(false)
-      setIsSpeaking(false)
     }
   })
 
@@ -307,21 +306,23 @@ export default function AIMentor() {
   }
 
   const handleSpeakMessage = async (content: string) => {
-    if (isSpeaking) {
-      // Stop current speech
+    // Check if TTS is supported for current language
+    if (!selectedLanguage.ttsSupported) {
+      setError(`Text-to-speech is not available for ${selectedLanguage.name}. Please select a different language for voice output.`)
+      return
+    }
+
+    if (voiceChat.isSpeaking) {
+      // Stop current speech immediately
       voiceChat.stopSpeaking()
-      setIsSpeaking(false)
     } else {
       // Start speech with Google Cloud TTS
       try {
-        setIsSpeaking(true)
         setError(null)
         await voiceChat.speak(content)
-        // isSpeaking will be set to false by the hook when playback ends
       } catch (error: any) {
         console.error('Speech error:', error)
         setError(`Voice output error: ${error.message || 'Failed to generate speech. Please try again.'}`)
-        setIsSpeaking(false)
       }
     }
   }
@@ -337,26 +338,26 @@ export default function AIMentor() {
       <div className="flex flex-col h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-slate-900 dark:via-purple-900 dark:to-slate-900 pt-16 sm:pt-18 md:pt-20">
         {/* Header */}
         <div className="bg-white/80 dark:bg-black/20 backdrop-blur-xl border-b border-gray-200 dark:border-white/10 shadow-sm">
-          <div className="max-w-6xl mx-auto px-6 py-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-4">
-                <div className="relative">
-                  <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-indigo-600 dark:from-violet-500 dark:to-purple-600 rounded-2xl flex items-center justify-center text-2xl shadow-xl ring-4 ring-blue-200/50 dark:ring-white/20">
+          <div className="max-w-6xl mx-auto px-3 sm:px-4 md:px-6 py-3 sm:py-4">
+            <div className="flex items-center justify-between gap-2 sm:gap-4">
+              <div className="flex items-center space-x-2 sm:space-x-3 md:space-x-4 min-w-0 flex-1">
+                <div className="relative flex-shrink-0">
+                  <div className="w-10 h-10 sm:w-12 sm:h-12 md:w-16 md:h-16 bg-gradient-to-br from-blue-500 to-indigo-600 dark:from-violet-500 dark:to-purple-600 rounded-xl sm:rounded-2xl flex items-center justify-center text-lg sm:text-xl md:text-2xl shadow-xl ring-2 sm:ring-4 ring-blue-200/50 dark:ring-white/20">
                     {selectedMentor.avatar}
                   </div>
-                  <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-green-500 rounded-full border-2 border-white dark:border-slate-900 animate-pulse"></div>
+                  <div className="absolute -bottom-0.5 -right-0.5 sm:-bottom-1 sm:-right-1 w-3 h-3 sm:w-4 sm:h-4 md:w-5 md:h-5 bg-green-500 rounded-full border-2 border-white dark:border-slate-900 animate-pulse"></div>
                 </div>
-                <div>
-                  <h1 className="text-xl font-bold text-gray-900 dark:text-white">{selectedMentor.name}</h1>
-                  <p className="text-sm flex items-center text-gray-600 dark:text-gray-300">
-                    <span className="w-2 h-2 bg-green-500 rounded-full mr-2 animate-pulse"></span>
-                    {selectedMentor.specialty} • Online
+                <div className="min-w-0 flex-1">
+                  <h1 className="text-sm sm:text-base md:text-xl font-bold text-gray-900 dark:text-white truncate">{selectedMentor.name}</h1>
+                  <p className="text-xs sm:text-sm flex items-center text-gray-600 dark:text-gray-300 truncate">
+                    <span className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-green-500 rounded-full mr-1 sm:mr-2 animate-pulse flex-shrink-0"></span>
+                    <span className="truncate">{selectedMentor.specialty} • Online</span>
                   </p>
-                  <p className="text-xs text-blue-600 dark:text-violet-400 font-medium mt-1">{selectedMentor.personality}</p>
+                  <p className="hidden sm:block text-xs text-blue-600 dark:text-violet-400 font-medium mt-1 truncate">{selectedMentor.personality}</p>
                 </div>
               </div>
-              
-              <div className="flex items-center space-x-3">
+
+              <div className="flex items-center space-x-1.5 sm:space-x-2 md:space-x-3 flex-shrink-0">
                 {/* Language Selector */}
                 <select
                   value={selectedLanguage.code}
@@ -364,7 +365,7 @@ export default function AIMentor() {
                     const lang = languages.find(l => l.code === e.target.value)
                     if (lang) setSelectedLanguage(lang)
                   }}
-                  className="px-3 py-2 text-sm rounded-xl bg-white hover:bg-blue-50 dark:bg-white/10 dark:hover:bg-white/20 border border-blue-200 dark:border-white/20 text-gray-700 dark:text-white shadow-lg transition-all duration-300 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="px-2 py-1.5 sm:px-3 sm:py-2 text-xs sm:text-sm rounded-lg sm:rounded-xl bg-white hover:bg-blue-50 dark:bg-white/10 dark:hover:bg-white/20 border border-blue-200 dark:border-white/20 text-gray-700 dark:text-white shadow-lg transition-all duration-300 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
                   {languages.map((lang) => (
                     <option key={lang.code} value={lang.code} className="dark:bg-slate-800">
@@ -378,11 +379,11 @@ export default function AIMentor() {
                   variant="outline"
                   size="sm"
                   onClick={() => setMentorDropdownOpen(true)}
-                  className="bg-white hover:bg-blue-50 dark:bg-white/10 dark:hover:bg-white/20 border-blue-200 dark:border-white/20 text-gray-700 dark:text-white shadow-lg transition-all duration-300 rounded-xl"
+                  className="bg-white hover:bg-blue-50 dark:bg-white/10 dark:hover:bg-white/20 border-blue-200 dark:border-white/20 text-gray-700 dark:text-white shadow-lg transition-all duration-300 rounded-lg sm:rounded-xl px-2 sm:px-3 py-1.5 sm:py-2 h-auto"
                 >
-                  <Bot className="w-4 h-4 mr-2" />
-                  Switch Mentor
-                  <ChevronDown className="w-3 h-3 ml-2" />
+                  <Bot className="w-3.5 h-3.5 sm:w-4 sm:h-4 sm:mr-2" />
+                  <span className="hidden sm:inline">Switch Mentor</span>
+                  <ChevronDown className="w-3 h-3 sm:ml-2" />
                 </Button>
               </div>
             </div>
@@ -390,9 +391,9 @@ export default function AIMentor() {
         </div>
 
         {/* Quick Actions */}
-        <div className="bg-white/60 dark:bg-black/10 backdrop-blur-sm border-b border-gray-200 dark:border-white/5 px-6 py-4">
+        <div className="bg-white/60 dark:bg-black/10 backdrop-blur-sm border-b border-gray-200 dark:border-white/5 px-3 sm:px-4 md:px-6 py-2 sm:py-3 md:py-4 overflow-x-auto">
           <div className="max-w-6xl mx-auto">
-            <div className="flex flex-wrap gap-2">
+            <div className="flex sm:flex-wrap gap-2 sm:gap-2 pb-1 sm:pb-0 min-w-max sm:min-w-0">
               {quickActions.map((action, index) => (
                 <Button
                   key={index}
@@ -400,10 +401,10 @@ export default function AIMentor() {
                   size="sm"
                   onClick={() => handleQuickAction(action.text)}
                   disabled={isTyping}
-                  className="text-xs rounded-full bg-white hover:bg-blue-50 dark:bg-white/5 dark:hover:bg-white/10 border-blue-200 dark:border-white/20 text-gray-700 hover:text-blue-700 dark:text-white/90 dark:hover:text-white transition-all duration-300 font-medium"
+                  className="text-[10px] sm:text-xs rounded-full bg-white hover:bg-blue-50 dark:bg-white/5 dark:hover:bg-white/10 border-blue-200 dark:border-white/20 text-gray-700 hover:text-blue-700 dark:text-white/90 dark:hover:text-white transition-all duration-300 font-medium px-3 sm:px-3 py-2 sm:py-2 h-auto whitespace-nowrap flex-shrink-0 sm:flex-shrink"
                 >
-                  <action.icon className="w-3 h-3 mr-2" />
-                  {action.text}
+                  <action.icon className="w-3 h-3 mr-1.5 sm:mr-2 flex-shrink-0" />
+                  <span className="truncate sm:line-clamp-1">{action.text}</span>
                 </Button>
               ))}
             </div>
@@ -440,8 +441,8 @@ export default function AIMentor() {
         </AnimatePresence>
 
         {/* Messages Container */}
-        <div className="flex-1 overflow-y-auto p-6">
-          <div className="max-w-4xl mx-auto space-y-6">
+        <div className="flex-1 overflow-y-auto p-2 sm:p-4 md:p-6 pb-4">
+          <div className="max-w-4xl mx-auto space-y-3 sm:space-y-4 md:space-y-6">
             {messages.map((message) => (
               <motion.div
                 key={message.id}
@@ -450,24 +451,24 @@ export default function AIMentor() {
                 transition={{ duration: 0.3 }}
                 className={`flex ${message.type === 'user' ? 'justify-end' : 'justify-start'}`}
               >
-                <div className={`max-w-3xl ${message.type === 'user' ? 'order-2' : 'order-1'}`}>
-                  <div className="flex items-start space-x-3 mb-2">
+                <div className={`max-w-[90%] sm:max-w-[85%] md:max-w-3xl ${message.type === 'user' ? 'order-2' : 'order-1'}`}>
+                  <div className="flex items-start space-x-2 sm:space-x-3 mb-2">
                     {/* Avatar for Assistant */}
                     {message.type === 'assistant' && (
-                      <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 dark:from-violet-500 dark:to-purple-600 rounded-xl flex items-center justify-center text-lg shadow-lg flex-shrink-0">
+                      <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-blue-500 to-indigo-600 dark:from-violet-500 dark:to-purple-600 rounded-lg sm:rounded-xl flex items-center justify-center text-base sm:text-lg shadow-lg flex-shrink-0">
                         {selectedMentor.avatar}
                       </div>
                     )}
 
                     {/* Message Content */}
                     <div
-                      className={`px-5 py-4 rounded-2xl shadow-xl max-w-full ${
+                      className={`px-3 py-3 sm:px-4 sm:py-4 md:px-5 md:py-4 rounded-xl sm:rounded-2xl shadow-xl max-w-full ${
                         message.type === 'user'
                           ? 'bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-violet-600 dark:to-purple-600 text-white ml-auto'
                           : 'bg-white dark:bg-white/10 dark:backdrop-blur-lg border border-gray-200 dark:border-white/10 text-gray-900 dark:text-white'
                       }`}
                     >
-                      <div className={`text-sm leading-relaxed prose prose-sm max-w-none prose-p:my-2 prose-ul:my-2 prose-ol:my-2 prose-li:my-1 prose-headings:mb-2 prose-headings:mt-3 prose-strong:font-semibold ${
+                      <div className={`text-xs sm:text-sm leading-relaxed prose prose-sm max-w-none prose-p:my-1 sm:prose-p:my-2 prose-ul:my-1 sm:prose-ul:my-2 prose-ol:my-1 sm:prose-ol:my-2 prose-li:my-0.5 sm:prose-li:my-1 prose-headings:mb-1 sm:prose-headings:mb-2 prose-headings:mt-2 sm:prose-headings:mt-3 prose-strong:font-semibold ${
                         message.type === 'user'
                           ? 'prose-invert prose-strong:text-white'
                           : 'dark:prose-invert prose-strong:text-white dark:prose-strong:text-white prose-strong:text-gray-900'
@@ -476,43 +477,47 @@ export default function AIMentor() {
                       </div>
 
                       {/* Message Actions */}
-                      <div className={`flex items-center justify-between mt-3 pt-3 border-t ${
+                      <div className={`flex items-center justify-between mt-2 sm:mt-3 pt-2 sm:pt-3 border-t ${
                         message.type === 'user'
                           ? 'border-white/10'
                           : 'border-gray-200 dark:border-white/10'
                       }`}>
-                        <div className="flex items-center space-x-1">
+                        <div className="flex items-center space-x-0.5 sm:space-x-1">
                           {message.type === 'assistant' && (
                             <>
                               <button
                                 onClick={() => copyMessage(message.content, message.id)}
-                                className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-white/10 transition-colors text-gray-500 hover:text-gray-700 dark:text-white/60 dark:hover:text-white"
+                                className="p-1 sm:p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-white/10 transition-colors text-gray-500 hover:text-gray-700 dark:text-white/60 dark:hover:text-white min-w-[44px] min-h-[44px] sm:min-w-0 sm:min-h-0 flex items-center justify-center"
                               >
                                 {copiedMessageId === message.id ? (
-                                  <Check className="w-3.5 h-3.5 text-green-600 dark:text-green-400" />
+                                  <Check className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-green-600 dark:text-green-400" />
                                 ) : (
-                                  <Copy className="w-3.5 h-3.5" />
+                                  <Copy className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
                                 )}
                               </button>
                               <button
                                 onClick={() => handleSpeakMessage(message.content)}
-                                title={isSpeaking ? "Stop speaking" : "Click to hear this message"}
-                                aria-label={isSpeaking ? "Stop speaking" : "Speak this message"}
-                                className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-white/10 transition-colors text-gray-500 hover:text-gray-700 dark:text-white/60 dark:hover:text-white"
+                                title={!selectedLanguage.ttsSupported ? "Text-to-speech not available for this language - Click to see message" : (voiceChat.isSpeaking ? "Stop speaking" : "Click to hear this message")}
+                                aria-label={voiceChat.isSpeaking ? "Stop speaking" : "Speak this message"}
+                                className={`p-1 sm:p-1.5 rounded-lg transition-colors min-w-[44px] min-h-[44px] sm:min-w-0 sm:min-h-0 flex items-center justify-center ${
+                                  !selectedLanguage.ttsSupported
+                                    ? 'opacity-50 cursor-pointer text-gray-400 dark:text-white/30 hover:opacity-70'
+                                    : 'hover:bg-gray-100 dark:hover:bg-white/10 text-gray-500 hover:text-gray-700 dark:text-white/60 dark:hover:text-white'
+                                }`}
                               >
-                                {isSpeaking ? <VolumeX className="w-3.5 h-3.5" /> : <Volume2 className="w-3.5 h-3.5" />}
+                                {voiceChat.isSpeaking ? <VolumeX className="w-3 h-3 sm:w-3.5 sm:h-3.5" /> : <Volume2 className="w-3 h-3 sm:w-3.5 sm:h-3.5" />}
                               </button>
-                              <button className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-white/10 transition-colors text-gray-500 hover:text-gray-700 dark:text-white/60 dark:hover:text-white">
+                              <button className="hidden sm:flex p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-white/10 transition-colors text-gray-500 hover:text-gray-700 dark:text-white/60 dark:hover:text-white items-center justify-center">
                                 <ThumbsUp className="w-3.5 h-3.5" />
                               </button>
-                              <button className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-white/10 transition-colors text-gray-500 hover:text-gray-700 dark:text-white/60 dark:hover:text-white">
+                              <button className="hidden sm:flex p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-white/10 transition-colors text-gray-500 hover:text-gray-700 dark:text-white/60 dark:hover:text-white items-center justify-center">
                                 <ThumbsDown className="w-3.5 h-3.5" />
                               </button>
                             </>
                           )}
                         </div>
                         {mounted && (
-                          <span className={`text-xs ${
+                          <span className={`text-[10px] sm:text-xs ${
                             message.type === 'user'
                               ? 'text-white/70'
                               : 'text-gray-500 dark:text-white/50'
@@ -525,15 +530,15 @@ export default function AIMentor() {
 
                     {/* Avatar for User */}
                     {message.type === 'user' && (
-                      <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-cyan-500 dark:from-emerald-500 dark:to-teal-600 rounded-xl flex items-center justify-center order-2 shadow-lg flex-shrink-0">
-                        <User className="w-5 h-5 text-white" />
+                      <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-blue-500 to-cyan-500 dark:from-emerald-500 dark:to-teal-600 rounded-lg sm:rounded-xl flex items-center justify-center order-2 shadow-lg flex-shrink-0">
+                        <User className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
                       </div>
                     )}
                   </div>
-                  
+
                   {/* Suggestions */}
                   {message.suggestions && message.suggestions.length > 0 && (
-                    <div className="flex flex-wrap gap-2 ml-13 mt-2">
+                    <div className="flex flex-wrap gap-1.5 sm:gap-2 ml-10 sm:ml-12 md:ml-13 mt-2">
                       {message.suggestions.map((suggestion, index) => (
                         <Button
                           key={index}
@@ -541,10 +546,10 @@ export default function AIMentor() {
                           size="sm"
                           onClick={() => handleQuickAction(suggestion)}
                           disabled={isTyping}
-                          className="text-xs rounded-full bg-blue-100 hover:bg-blue-200 dark:bg-violet-600/20 dark:hover:bg-violet-600/30 border-blue-300 dark:border-violet-500/30 text-blue-700 hover:text-blue-900 dark:text-violet-300 dark:hover:text-white transition-all duration-300"
+                          className="text-[10px] sm:text-xs rounded-full bg-blue-100 hover:bg-blue-200 dark:bg-violet-600/20 dark:hover:bg-violet-600/30 border-blue-300 dark:border-violet-500/30 text-blue-700 hover:text-blue-900 dark:text-violet-300 dark:hover:text-white transition-all duration-300 px-2 sm:px-3 py-1.5 sm:py-2"
                         >
-                          <Sparkles className="w-3 h-3 mr-2" />
-                          {suggestion}
+                          <Sparkles className="w-3 h-3 mr-1 sm:mr-2 flex-shrink-0" />
+                          <span className="line-clamp-1">{suggestion}</span>
                         </Button>
                       ))}
                     </div>
@@ -560,19 +565,19 @@ export default function AIMentor() {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -20 }}
-                  className="flex items-start space-x-3"
+                  className="flex items-start space-x-2 sm:space-x-3"
                 >
-                  <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 dark:from-violet-500 dark:to-purple-600 rounded-xl flex items-center justify-center text-lg shadow-lg">
+                  <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-blue-500 to-indigo-600 dark:from-violet-500 dark:to-purple-600 rounded-lg sm:rounded-xl flex items-center justify-center text-base sm:text-lg shadow-lg flex-shrink-0">
                     {selectedMentor.avatar}
                   </div>
-                  <div className="bg-white dark:bg-white/10 dark:backdrop-blur-lg border border-gray-200 dark:border-white/10 px-5 py-4 rounded-2xl shadow-xl">
+                  <div className="bg-white dark:bg-white/10 dark:backdrop-blur-lg border border-gray-200 dark:border-white/10 px-3 py-3 sm:px-5 sm:py-4 rounded-xl sm:rounded-2xl shadow-xl">
                     <div className="flex items-center space-x-2">
                       <div className="flex space-x-1">
                         <div className="w-2 h-2 bg-blue-500 dark:bg-violet-400 rounded-full animate-bounce" />
                         <div className="w-2 h-2 bg-indigo-500 dark:bg-purple-400 rounded-full animate-bounce" style={{ animationDelay: '75ms' }} />
                         <div className="w-2 h-2 bg-blue-600 dark:bg-pink-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
                       </div>
-                      <span className="text-xs text-gray-600 dark:text-gray-300 font-medium">AI is thinking...</span>
+                      <span className="text-[10px] sm:text-xs text-gray-600 dark:text-gray-300 font-medium">AI is thinking...</span>
                     </div>
                   </div>
                 </motion.div>
@@ -584,9 +589,9 @@ export default function AIMentor() {
         </div>
 
         {/* Input Section */}
-        <div className="bg-white/90 dark:bg-black/20 backdrop-blur-xl border-t border-gray-200 dark:border-white/10 shadow-lg">
-          <div className="max-w-4xl mx-auto px-6 py-5">
-            <div className="flex items-end space-x-4">
+        <div className="bg-white/90 dark:bg-black/20 backdrop-blur-xl border-t border-gray-200 dark:border-white/10 shadow-lg safe-area-inset-bottom">
+          <div className="max-w-4xl mx-auto px-3 sm:px-4 md:px-6 py-2 sm:py-3 md:py-4">
+            <div className="flex items-end space-x-2 sm:space-x-3 md:space-x-4">
               <div className="flex-1 relative">
                 <Textarea
                   ref={inputRef}
@@ -594,7 +599,7 @@ export default function AIMentor() {
                   onChange={(e) => setInputMessage(e.target.value)}
                   onKeyPress={handleKeyPress}
                   placeholder="Ask me anything about your career..."
-                  className="pr-12 py-4 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 text-sm rounded-2xl border-gray-300 dark:border-white/20 bg-white dark:bg-white/10 dark:backdrop-blur-lg focus:border-blue-500 dark:focus:border-violet-500 focus:ring-2 focus:ring-blue-500/20 dark:focus:ring-violet-500/20 shadow-xl resize-none min-h-[56px] max-h-32"
+                  className="pr-10 sm:pr-12 pl-3 sm:pl-4 py-3 sm:py-4 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 text-sm sm:text-sm rounded-xl sm:rounded-2xl border-gray-300 dark:border-white/20 bg-white dark:bg-white/10 dark:backdrop-blur-lg focus:border-blue-500 dark:focus:border-violet-500 focus:ring-2 focus:ring-blue-500/20 dark:focus:ring-violet-500/20 shadow-xl resize-none min-h-[50px] sm:min-h-[56px] max-h-32"
                   rows={1}
                   disabled={isTyping}
                 />
@@ -605,34 +610,34 @@ export default function AIMentor() {
                   disabled={isTyping}
                   title={isRecording ? "Stop recording" : "Click to record voice message"}
                   aria-label={isRecording ? "Stop recording" : "Record voice message"}
-                  className={`absolute right-3 bottom-3 h-8 w-8 p-0 rounded-xl transition-all ${
+                  className={`absolute right-2 sm:right-3 bottom-2.5 sm:bottom-3 h-9 w-9 sm:h-8 sm:w-8 p-0 rounded-lg sm:rounded-xl transition-all ${
                     isRecording
                       ? 'text-red-400 bg-red-500/20 hover:bg-red-500/30 animate-pulse'
                       : 'text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-white/10'
                   }`}
                 >
-                  {isRecording ? <MicOff className="w-4 h-4" /> : <Mic className="w-4 h-4" />}
+                  {isRecording ? <MicOff className="w-4 h-4 sm:w-4 sm:h-4" /> : <Mic className="w-4 h-4 sm:w-4 sm:h-4" />}
                 </Button>
               </div>
               <Button
                 onClick={handleSendMessage}
                 disabled={!inputMessage.trim() || isTyping}
-                className="h-[56px] px-6 rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-violet-600 dark:to-purple-600 hover:from-blue-700 hover:to-indigo-700 dark:hover:from-violet-700 dark:hover:to-purple-700 text-white shadow-xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="h-[50px] sm:h-[56px] px-4 sm:px-6 rounded-xl sm:rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-violet-600 dark:to-purple-600 hover:from-blue-700 hover:to-indigo-700 dark:hover:from-violet-700 dark:hover:to-purple-700 text-white shadow-xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex-shrink-0"
               >
                 {isTyping ? (
-                  <Loader2 className="w-5 h-5 animate-spin" />
+                  <Loader2 className="w-5 h-5 sm:w-5 sm:h-5 animate-spin" />
                 ) : (
-                  <Send className="w-5 h-5" />
+                  <Send className="w-5 h-5 sm:w-5 sm:h-5" />
                 )}
               </Button>
             </div>
-            <div className="flex items-center justify-between mt-4">
-              <p className="text-xs text-gray-600 dark:text-gray-400">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mt-2 sm:mt-3 gap-1.5 sm:gap-0">
+              <p className="text-[10px] sm:text-xs text-gray-600 dark:text-gray-400 leading-relaxed">
                 AI responses are personalized based on your profile, skills, and career goals.
               </p>
-              <div className="flex items-center space-x-2 text-xs text-blue-600 dark:text-violet-400 font-medium">
+              <div className="flex items-center space-x-1 sm:space-x-2 text-[10px] sm:text-xs text-blue-600 dark:text-violet-400 font-medium flex-shrink-0">
                 <span>Powered by Vertex AI</span>
-                <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-green-500 rounded-full animate-pulse"></div>
               </div>
             </div>
           </div>

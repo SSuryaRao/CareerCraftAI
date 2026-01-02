@@ -1,0 +1,21 @@
+{
+  "name": "career-advisor-livekit-agent",
+  "version": "1.0.0",
+  "description": "LiveKit agent for AI interviews using Gemini Live API",
+  "type": "module",
+  "main": "src/agent.js",
+  "scripts": {
+    "dev": "node src/agent.js dev",
+    "start": "node src/agent.js start",
+    "download-files": "node scripts/download-models.js"
+  },
+  "dependencies": {
+    "@livekit/agents": "^1.0.31",
+    "@livekit/agents-plugin-google": "^1.0.31",
+    "@livekit/rtc-node": "^0.13.22",
+    "dotenv": "^16.3.1"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  }
+}

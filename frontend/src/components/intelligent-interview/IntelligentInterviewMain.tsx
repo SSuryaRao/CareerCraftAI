@@ -4,11 +4,12 @@ import { useState } from 'react'
 import { useAuth } from '@/components/auth-provider'
 import { DomainSelector } from './DomainSelector'
 import { InterviewSession } from './InterviewSession'
+import { LiveKitInterviewSession } from './LiveKitInterviewSession'
 import { SessionResults } from './SessionResults'
 import { intelligentInterviewApi, SessionData, Answer } from '@/lib/intelligentInterviewApi'
 import toast from 'react-hot-toast'
 
-type Mode = 'selection' | 'interview' | 'results'
+type Mode = 'selection' | 'interview' | 'live-interview' | 'results'
 
 export function IntelligentInterviewMain() {
   const { user } = useAuth()
@@ -16,15 +17,38 @@ export function IntelligentInterviewMain() {
   const [sessionData, setSessionData] = useState<SessionData | null>(null)
   const [answers, setAnswers] = useState<Answer[]>([])
   const [loading, setLoading] = useState(false)
+  // Live interview state
+  const [liveInterviewConfig, setLiveInterviewConfig] = useState<{
+    domainId: string;
+    domainName: string;
+    level: string;
+  } | null>(null)
 
   const handleStartSession = async (
     domainId: string,
     level: string,
     questionCount: number,
-    analysisMode: 'standard' | 'advanced'
+    analysisMode: 'standard' | 'advanced' | 'live'
   ) => {
     if (!user) {
       toast.error('Please sign in to start an interview')
+      return
+    }
+
+    // Handle live interview mode separately
+    if (analysisMode === 'live') {
+      // Get domain name from domainId
+      const domainName = domainId.split('-').map(word =>
+        word.charAt(0).toUpperCase() + word.slice(1)
+      ).join(' ')
+
+      setLiveInterviewConfig({
+        domainId,
+        domainName,
+        level
+      })
+      setMode('live-interview')
+      toast.success('Starting live interview...')
       return
     }
 
@@ -75,6 +99,11 @@ export function IntelligentInterviewMain() {
     }
   }
 
+  const handleCancelLiveInterview = () => {
+    setMode('selection')
+    setLiveInterviewConfig(null)
+  }
+
   const handleRestartInterview = () => {
     setMode('selection')
     setSessionData(null)
@@ -85,6 +114,7 @@ export function IntelligentInterviewMain() {
     setMode('selection')
     setSessionData(null)
     setAnswers([])
+    setLiveInterviewConfig(null)
   }
 
   if (loading) {
@@ -108,6 +138,15 @@ export function IntelligentInterviewMain() {
           userId={user.uid}
           onComplete={handleCompleteInterview}
           onCancel={handleCancelInterview}
+        />
+      )}
+
+      {mode === 'live-interview' && liveInterviewConfig && (
+        <LiveKitInterviewSession
+          domainId={liveInterviewConfig.domainId}
+          domainName={liveInterviewConfig.domainName}
+          level={liveInterviewConfig.level}
+          onEnd={handleCancelLiveInterview}
         />
       )}
 

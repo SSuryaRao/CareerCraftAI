@@ -1,29 +1,18 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion } from 'framer-motion'
 import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
-import { Card } from '@/components/ui/card'
 import { LazyLoad } from '@/components/ui/lazy-load'
 import Navbar from '@/components/layout/navbar'
-import Hero from '@/components/sections/hero'
 import Features from '@/components/sections/features'
 import HowItWorks from '@/components/sections/how-it-works'
-import Testimonials from '@/components/sections/testimonials'
-import Stats from '@/components/sections/stats'
-import CTA from '@/components/sections/cta'
 import Footer from '@/components/layout/footer'
 import FeaturedReviews from '@/components/reviews/FeaturedReviews'
-import { ArrowRight, Sparkles, Brain, Target, Users, TrendingUp, Award, Globe, Star } from 'lucide-react'
+import { ArrowRight, Sparkles, Star } from 'lucide-react'
 
 export default function LandingPage() {
-  const [isLoaded, setIsLoaded] = useState(false)
   const router = useRouter()
-
-  useEffect(() => {
-    setIsLoaded(true)
-  }, [])
 
   const handleStartJourney = () => {
     router.push('/mentor')
@@ -114,27 +103,6 @@ export default function LandingPage() {
                 Watch Demo
               </Button>
             </motion.div>
-
-            {/* Stats Preview */}
-            <motion.div
-              initial={{ opacity: 0, y: 40 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.6 }}
-              className="responsive-grid-4 mt-16 sm:mt-20 lg:mt-24"
-            >
-              {[
-                { icon: Users, label: 'Active Students', value: '50,000+' },
-                { icon: Brain, label: 'Career Paths', value: '5,000+' },
-                { icon: Target, label: 'Success Rate', value: '94%' },
-                { icon: Globe, label: 'Languages', value: '10+' },
-              ].map((stat, index) => (
-                <div key={index} className="glass bg-white/40 dark:bg-white/10 rounded-xl sm:rounded-2xl p-4 sm:p-6 hover:scale-105 transition-transform text-center border border-gray-200/50 dark:border-white/20">
-                  <stat.icon className="w-6 h-6 sm:w-8 sm:h-8 text-blue-600 dark:text-blue-400 mb-2 mx-auto" />
-                  <div className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 dark:text-white mb-1">{stat.value}</div>
-                  <div className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">{stat.label}</div>
-                </div>
-              ))}
-            </motion.div>
           </motion.div>
 
           {/* Floating Elements - Optimized */}
@@ -175,17 +143,7 @@ export default function LandingPage() {
         <HowItWorks />
       </LazyLoad>
 
-      {/* Testimonials */}
-      <LazyLoad showSkeleton>
-        <Testimonials />
-      </LazyLoad>
-
-      {/* Stats */}
-      <LazyLoad showSkeleton>
-        <Stats />
-      </LazyLoad>
-
-      {/* Featured Reviews */}
+      {/* Featured Reviews - Only shows admin-approved reviews */}
       <LazyLoad>
         <section className="relative container-padding section-padding">
           <div className="container mx-auto max-w-6xl">
@@ -225,11 +183,6 @@ export default function LandingPage() {
             </motion.div>
           </div>
         </section>
-      </LazyLoad>
-
-      {/* CTA Section */}
-      <LazyLoad>
-        <CTA />
       </LazyLoad>
 
       {/* Footer */}

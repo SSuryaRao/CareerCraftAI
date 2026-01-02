@@ -117,7 +117,8 @@ const nextConfig = {
     imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
   },
   // Performance optimizations
-  reactStrictMode: true,
+  // Temporarily disabled for LiveKit - StrictMode causes double audio in dev
+  reactStrictMode: false,
   compress: true,
   eslint: {
     ignoreDuringBuilds: true,

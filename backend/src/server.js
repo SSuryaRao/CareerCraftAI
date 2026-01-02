@@ -32,6 +32,8 @@ const paymentRoutes = require('./routes/paymentRoutes');
 const quotaRoutes = require('./routes/quotaRoutes');
 const feedbackRoutes = require('./routes/feedbackRoutes');
 const reviewRoutes = require('./routes/reviewRoutes');
+const liveInterviewRoutes = require('./routes/liveInterview');
+const livekitRoutes = require('./routes/livekitRoutes');
 const { startJobSync } = require('./services/jobSyncService');
 const { localCleanupService } = require('./services/localStorageCleanup');
 const dataSyncService = require('./services/dataSyncService');
@@ -100,6 +102,8 @@ app.use('/api/payment', paymentRoutes);
 app.use('/api/quota', quotaRoutes);
 app.use('/api/feedback', feedbackRoutes);
 app.use('/api/reviews', reviewRoutes);
+app.use('/api/live-interview', liveInterviewRoutes);
+app.use('/api/livekit', livekitRoutes);
 
 app.get('/api/health', (req, res) => {
   res.status(200).json({

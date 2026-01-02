@@ -20,12 +20,14 @@ import {
   Zap,
   Star,
   TrendingUp,
-  Award
+  Award,
+  Mic,
+  Radio
 } from 'lucide-react'
 import { intelligentInterviewApi, Domain } from '@/lib/intelligentInterviewApi'
 
 interface DomainSelectorProps {
-  onStartSession: (domainId: string, level: string, questionCount: number, analysisMode: 'standard' | 'advanced') => void
+  onStartSession: (domainId: string, level: string, questionCount: number, analysisMode: 'standard' | 'advanced' | 'live') => void
 }
 
 const categoryIcons: { [key: string]: any } = {
@@ -230,34 +232,55 @@ export function DomainSelector({ onStartSession }: DomainSelectorProps) {
   const [selectedDomain, setSelectedDomain] = useState<Domain | null>(null)
   const [selectedLevel, setSelectedLevel] = useState<string>('')
   const [questionCount, setQuestionCount] = useState<number>(5)
-  const [analysisMode, setAnalysisMode] = useState<'standard' | 'advanced'>('standard')
+  const [analysisMode, setAnalysisMode] = useState<'standard' | 'advanced' | 'live'>('standard')
   const [loading, setLoading] = useState(true)
 
+  const [isInitialLoad, setIsInitialLoad] = useState(true)
+
+  // Initial load - get categories and first category's domains
   useEffect(() => {
-    loadDomains()
+    loadInitialData()
   }, [])
 
-  const loadDomains = async () => {
+  // Load domains when category changes (after initial load)
+  useEffect(() => {
+    if (selectedCategory && !isInitialLoad) {
+      loadDomainsByCategory(selectedCategory)
+    }
+  }, [selectedCategory])
+
+  const loadInitialData = async () => {
     try {
+      // First get all categories
       const data = await intelligentInterviewApi.getDomains()
-      setDomains(data.domains)
       setCategories(data.categories)
+
       if (data.categories.length > 0) {
-        setSelectedCategory(data.categories[0].key)
+        const firstCategory = data.categories[0].key
+        // Load domains for first category
+        const categoryData = await intelligentInterviewApi.getDomains(firstCategory)
+        setDomains(categoryData.domains)
+        setSelectedCategory(firstCategory)
       }
     } catch (error) {
-      console.error('Error loading domains:', error)
+      console.error('Error loading initial data:', error)
     } finally {
       setLoading(false)
+      setIsInitialLoad(false)
     }
   }
 
-  const filteredDomains = selectedCategory
-    ? domains.filter(d => {
-        const categoryDomains = categories.find(c => c.key === selectedCategory)
-        return d.id.includes(selectedCategory) || categoryDomains
-      })
-    : domains
+  const loadDomainsByCategory = async (category: string) => {
+    try {
+      const data = await intelligentInterviewApi.getDomains(category)
+      setDomains(data.domains)
+      // Reset selected domain when category changes
+      setSelectedDomain(null)
+      setSelectedLevel('')
+    } catch (error) {
+      console.error('Error loading domains for category:', error)
+    }
+  }
 
   const handleDomainSelect = (domain: Domain) => {
     setSelectedDomain(domain)
@@ -413,7 +436,7 @@ export function DomainSelector({ onStartSession }: DomainSelectorProps) {
             <div className="flex-1 h-px bg-gradient-to-r from-transparent via-indigo-300 to-transparent"></div>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredDomains.map((domain, idx) => {
+            {domains.map((domain, idx) => {
               const Icon = domainIcons[domain.id] || Code
               const colors = domainColors[domain.id] || {
                 gradient: 'from-indigo-50 via-purple-50 to-pink-50',
@@ -604,9 +627,9 @@ export function DomainSelector({ onStartSession }: DomainSelectorProps) {
                   transition={{ delay: 0.5 }}
                 >
                   <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
-                    Analysis Mode
+                    Interview Mode
                   </label>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <motion.div
                       whileHover={{ scale: 1.01 }}
                       transition={{ type: "spring", stiffness: 300 }}
@@ -684,6 +707,50 @@ export function DomainSelector({ onStartSession }: DomainSelectorProps) {
                         </div>
                       </Card>
                     </motion.div>
+
+                    <motion.div
+                      whileHover={{ scale: 1.01 }}
+                      transition={{ type: "spring", stiffness: 300 }}
+                    >
+                      <Card
+                        onClick={() => setAnalysisMode('live')}
+                        className={`p-4 cursor-pointer transition-all duration-200 relative overflow-hidden group ${
+                          analysisMode === 'live'
+                            ? 'border-2 border-green-500 dark:border-green-400 bg-green-50 dark:bg-green-950/30'
+                            : 'border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-900 hover:border-green-400 dark:hover:border-green-500'
+                        }`}
+                      >
+                        {analysisMode === 'live' && (
+                          <motion.div
+                            className="absolute top-2 right-2"
+                            initial={{ scale: 0 }}
+                            animate={{ scale: 1 }}
+                          >
+                            <CheckCircle className="w-5 h-5 text-green-600 dark:text-green-400" />
+                          </motion.div>
+                        )}
+                        <div className="relative flex items-start">
+                          <div className={`p-2 rounded-lg mr-3 ${
+                            analysisMode === 'live' ? 'bg-green-600 dark:bg-green-500' : 'bg-gray-200 dark:bg-slate-700'
+                          }`}>
+                            <Radio className={`w-5 h-5 ${
+                              analysisMode === 'live' ? 'text-white' : 'text-gray-600 dark:text-gray-400'
+                            }`} />
+                          </div>
+                          <div>
+                            <h4 className={`font-semibold text-sm mb-1 ${
+                              analysisMode === 'live' ? 'text-green-700 dark:text-green-300' : 'text-gray-900 dark:text-gray-100'
+                            }`}>Live Interview</h4>
+                            <p className="text-xs text-gray-600 dark:text-gray-400">Real-time voice conversation with AI interviewer</p>
+                          </div>
+                        </div>
+                        <div className="mt-2">
+                          <Badge className="text-[10px] bg-green-100 dark:bg-green-900/50 text-green-700 dark:text-green-300 border-green-300 dark:border-green-700">
+                            Voice Powered
+                          </Badge>
+                        </div>
+                      </Card>
+                    </motion.div>
                   </div>
                 </motion.div>
 
@@ -695,11 +762,24 @@ export function DomainSelector({ onStartSession }: DomainSelectorProps) {
                   <Button
                     onClick={handleStart}
                     disabled={!selectedDomain || !selectedLevel}
-                    className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 dark:from-blue-500 dark:to-indigo-500 dark:hover:from-blue-600 dark:hover:to-indigo-600 text-white py-3 text-lg font-semibold shadow-lg transition-all duration-200"
+                    className={`w-full py-3 text-lg font-semibold shadow-lg transition-all duration-200 text-white ${
+                      analysisMode === 'live'
+                        ? 'bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 dark:from-green-500 dark:to-emerald-500'
+                        : 'bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 dark:from-blue-500 dark:to-indigo-500'
+                    }`}
                   >
                     <span className="flex items-center justify-center">
-                      <Sparkles className="w-5 h-5 mr-2" />
-                      Start Intelligent Interview
+                      {analysisMode === 'live' ? (
+                        <>
+                          <Radio className="w-5 h-5 mr-2" />
+                          Start Live Interview
+                        </>
+                      ) : (
+                        <>
+                          <Sparkles className="w-5 h-5 mr-2" />
+                          Start Intelligent Interview
+                        </>
+                      )}
                     </span>
                   </Button>
                 </motion.div>

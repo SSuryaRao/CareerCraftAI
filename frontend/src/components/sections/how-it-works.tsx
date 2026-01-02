@@ -2,7 +2,8 @@
 
 import { motion } from 'framer-motion'
 import { Card } from '@/components/ui/card'
-import { UserPlus, Brain, Target, TrendingUp, Users, Sparkles } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { UserPlus, Brain, Target, TrendingUp, Users, Sparkles, ArrowRight } from 'lucide-react'
 import Link from 'next/link'
 
 const steps = [
@@ -12,15 +13,19 @@ const steps = [
     description: 'Sign up and build your comprehensive Digital Twin with academic records, skills, and aspirations.',
     step: '01',
     color: 'from-blue-500 to-purple-500',
-    features: ['Academic import', 'Skills assessment', 'Goal setting', 'Personality test']
+    features: ['Academic import', 'Skills assessment', 'Goal setting', 'Personality test'],
+    link: '/signup',
+    buttonText: 'Get Started'
   },
   {
     icon: Brain,
     title: 'AI Analysis & Matching',
-    description: 'Our AI analyzes your profile and matches you with 5000+ career opportunities based on your unique strengths.',
+    description: 'Our AI analyzes your resume and profile to match you with career opportunities based on your unique strengths.',
     step: '02',
     color: 'from-purple-500 to-pink-500',
-    features: ['Smart matching', 'Market analysis', 'Skill gap detection', 'Growth predictions']
+    features: ['Resume analysis', 'ATS compatibility', 'Skill gap detection', 'Improvement tips'],
+    link: '/features/resume-analyzer',
+    buttonText: 'Analyze Resume'
   },
   {
     icon: Target,
@@ -28,23 +33,29 @@ const steps = [
     description: 'Receive custom learning paths, skill recommendations, and career strategies tailored to your goals.',
     step: '03',
     color: 'from-pink-500 to-orange-500',
-    features: ['Learning paths', 'Skill roadmaps', 'Timeline planning', 'Progress tracking']
+    features: ['Learning paths', 'Skill roadmaps', 'Timeline planning', 'Progress tracking'],
+    link: '/solutions/roadmap',
+    buttonText: 'Generate Roadmap'
   },
   {
     icon: TrendingUp,
     title: 'Learn & Grow',
-    description: 'Access curated courses, practice with AI mentors, and connect with industry professionals.',
+    description: 'Access curated resources, practice with AI mentors, and build your skills with personalized guidance.',
     step: '04',
     color: 'from-orange-500 to-red-500',
-    features: ['Course recommendations', 'AI mentorship', 'Mock interviews', 'Peer learning']
+    features: ['AI mentorship', 'Career guidance', 'Skill development', 'Resource recommendations'],
+    link: '/features/ai-mentor',
+    buttonText: 'Talk to AI Mentor'
   },
   {
     icon: Users,
     title: 'Connect & Succeed',
-    description: 'Join our community, find mentors, practice interviews, and land your dream career.',
+    description: 'Practice interviews with AI, prepare for aptitude tests, and land your dream career.',
     step: '05',
     color: 'from-red-500 to-pink-500',
-    features: ['Mentor matching', 'Interview prep', 'Job applications', 'Career success']
+    features: ['Mock interviews', 'Aptitude tests', 'Interview prep', 'Career success'],
+    link: '/mock-interview',
+    buttonText: 'Start Interview Prep'
   }
 ]
 
@@ -91,7 +102,7 @@ export default function HowItWorks() {
               >
                 {/* Step Content */}
                 <div className="flex-1 lg:max-w-md">
-                  <Card className="p-8 bg-white/80 dark:bg-white/10 backdrop-blur-xl border-gray-200 dark:border-white/20 hover:bg-white dark:hover:bg-white/15 transition-all duration-300 shadow-lg">
+                  <Card className="p-8 bg-white/80 dark:bg-white/10 backdrop-blur-xl border-gray-200 dark:border-white/20 hover:bg-white dark:hover:bg-white/15 transition-all duration-300 shadow-lg group">
                     <div className="flex items-center gap-4 mb-6">
                       <div className={`w-16 h-16 bg-gradient-to-r ${step.color} rounded-full flex items-center justify-center`}>
                         <step.icon className="w-8 h-8 text-white" />
@@ -104,7 +115,7 @@ export default function HowItWorks() {
                     <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">{step.title}</h3>
                     <p className="text-gray-700 dark:text-gray-300 mb-6 leading-relaxed">{step.description}</p>
 
-                    <div className="space-y-2">
+                    <div className="space-y-2 mb-6">
                       {step.features.map((feature, featureIndex) => (
                         <div key={featureIndex} className="flex items-center gap-2">
                           <div className={`w-2 h-2 bg-gradient-to-r ${step.color} rounded-full`} />
@@ -112,6 +123,15 @@ export default function HowItWorks() {
                         </div>
                       ))}
                     </div>
+
+                    <Link href={step.link}>
+                      <Button
+                        className={`w-full bg-gradient-to-r ${step.color} hover:opacity-90 text-white font-medium rounded-full transition-all group-hover:scale-[1.02]`}
+                      >
+                        {step.buttonText}
+                        <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
+                      </Button>
+                    </Link>
                   </Card>
                 </div>
 

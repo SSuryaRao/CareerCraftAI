@@ -37,7 +37,7 @@ export default function LandingPage() {
       <Navbar />
 
       {/* Hero Section */}
-      <section className="relative min-h-screen flex items-center justify-center container-padding section-padding">
+      <section className="relative flex items-center justify-center container-padding section-padding pt-32 pb-20">
         <div className="container mx-auto max-w-7xl relative z-10">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -145,7 +145,7 @@ export default function LandingPage() {
 
       {/* Featured Reviews - Only shows admin-approved reviews */}
       <LazyLoad>
-        <section className="relative container-padding section-padding">
+        <section className="relative container-padding section-padding bg-gradient-to-b from-transparent via-blue-50/30 to-transparent dark:via-blue-950/20">
           <div className="container mx-auto max-w-6xl">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -164,7 +164,9 @@ export default function LandingPage() {
                 See what our users are saying about their experience with CareerCraft AI
               </p>
             </motion.div>
+
             <FeaturedReviews />
+
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
@@ -175,7 +177,7 @@ export default function LandingPage() {
               <Button
                 variant="outline"
                 onClick={() => router.push('/reviews')}
-                className="group"
+                className="group border-2 border-gray-300 dark:border-gray-600 hover:border-blue-500 dark:hover:border-blue-500 hover:bg-blue-50 dark:hover:bg-blue-950/30 transition-all"
               >
                 View All Reviews
                 <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />

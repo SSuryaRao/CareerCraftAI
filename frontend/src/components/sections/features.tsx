@@ -195,7 +195,7 @@ export default function Features() {
         >
           <button
             onClick={() => window.open('https://youtu.be/2rb_krNQHOE', '_blank')}
-            className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-medium transition-all hover:scale-105"
+            className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-medium transition-all hover:scale-105 cursor-pointer"
           >
             <BarChart className="w-5 h-5" />
             Explore Interactive Demo

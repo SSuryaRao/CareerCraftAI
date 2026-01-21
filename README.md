@@ -1,5 +1,10 @@
 # CareerCraft AI - Your Intelligent Career Companion
 
+> **⚠️ PROPRIETARY SOFTWARE - ALL RIGHTS RESERVED**
+> Copyright © 2026 CareerCraft AI. This code is proprietary and confidential.
+> Unauthorized copying, modification, distribution, or use is strictly prohibited.
+> See [LICENSE](LICENSE) for terms.
+
 <div align="center">
 
 **🏆 AI-Powered Career Guidance Platform | Built for the Indian Job Market**
@@ -10,7 +15,7 @@
 [![MongoDB](https://img.shields.io/badge/MongoDB-7.5.0-green?logo=mongodb)](https://www.mongodb.com/)
 [![Google Cloud](https://img.shields.io/badge/Google%20Cloud-Vertex%20AI%20%2B%208%20Services-4285F4?logo=google-cloud)](https://cloud.google.com/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.3.3-blue?logo=typescript)](https://www.typescriptlang.org/)
-[![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![License](https://img.shields.io/badge/License-Proprietary-red.svg)](LICENSE)
 
 [🌐 Live Demo](https://careercraft-frontend-1030709276859.us-central1.run.app) | [📹 Video Demo](https://youtu.be/2rb_krNQHOE) | [📖 Documentation](#documentation)
 

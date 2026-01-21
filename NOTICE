@@ -1,0 +1,97 @@
+NOTICE
+
+CareerCraft AI - Intelligent Career Companion Platform
+Copyright (c) 2026 CareerCraft AI
+
+================================================================================
+
+This repository contains proprietary and confidential software.
+
+VIEWING RESTRICTIONS:
+This code is made available on GitHub for LIMITED purposes only:
+- Portfolio demonstration
+- Evaluation by potential employers/investors/collaborators
+- Educational review (personal viewing only)
+
+NO LICENSE IS GRANTED for any other use.
+
+================================================================================
+
+THIRD-PARTY COMPONENTS:
+
+This software uses the following third-party services and libraries under their
+respective licenses. These licenses apply ONLY to the third-party components,
+NOT to the CareerCraft AI software itself:
+
+Google Cloud Platform Services:
+- Vertex AI (Google Cloud Terms of Service)
+- Document AI (Google Cloud Terms of Service)
+- BigQuery (Google Cloud Terms of Service)
+- Cloud Storage (Google Cloud Terms of Service)
+- Video Intelligence API (Google Cloud Terms of Service)
+- Speech-to-Text API (Google Cloud Terms of Service)
+- Text-to-Speech API (Google Cloud Terms of Service)
+- Dialogflow CX (Google Cloud Terms of Service)
+
+Firebase Platform:
+- Firebase Authentication (Google Firebase Terms)
+- Firebase Admin SDK (Apache License 2.0)
+
+AI/ML Services:
+- Google Generative AI SDK (Apache License 2.0)
+
+Frontend Libraries:
+- Next.js (MIT License)
+- React (MIT License)
+- Radix UI Components (MIT License)
+- TailwindCSS (MIT License)
+- And other npm packages listed in package.json
+
+Backend Libraries:
+- Express.js (MIT License)
+- Mongoose (MIT License)
+- And other npm packages listed in package.json
+
+Payment Processing:
+- Razorpay SDK (Razorpay Terms of Service)
+
+A complete list of dependencies and their licenses can be found in:
+- /frontend/package.json
+- /backend/package.json
+
+================================================================================
+
+DISCLAIMER:
+
+The third-party licenses above apply ONLY to those specific third-party
+components. They do NOT grant any rights to the CareerCraft AI software,
+codebase, algorithms, or implementations created by the copyright holder.
+
+All custom code, algorithms, designs, and implementations in this repository
+remain proprietary and are protected under the terms of the LICENSE file.
+
+================================================================================
+
+ATTRIBUTION REQUIREMENTS:
+
+If you are granted explicit written permission to use this software, you must:
+
+1. Include this NOTICE file in any distribution
+2. Retain all copyright notices
+3. Retain all trademark notices
+4. Credit "CareerCraft AI" in any derivative works
+5. Include a link to the original repository (if publicly distributed)
+6. Comply with all terms in the LICENSE agreement
+
+================================================================================
+
+CONTACT:
+
+For licensing inquiries or permission requests:
+Email: suryaraosodi@gmail.com
+
+================================================================================
+
+This NOTICE file must be included in any authorized distribution of the software.
+
+Last Updated: January 21, 2026

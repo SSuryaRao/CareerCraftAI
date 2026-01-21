@@ -21,8 +21,9 @@
     "remote",
     "mongodb"
   ],
-  "author": "Your Name",
-  "license": "ISC",
+  "author": "SSuryaRao <suryaraosodi@gmail.com>",
+  "license": "SEE LICENSE IN LICENSE",
+  "private": true,
   "dependencies": {
     "@google-cloud/aiplatform": "^6.0.0",
     "@google-cloud/bigquery": "^8.1.1",

@@ -1,0 +1,32 @@
+# Code Owners for CareerCraft AI
+#
+# This is a proprietary repository. All code is owned by the copyright holder.
+# No pull requests or contributions are accepted without explicit authorization.
+#
+# For licensing inquiries: suryaraosodi@gmail.com
+
+# Default owners for everything in the repo
+* @SSuryaRao
+
+# Backend code
+/backend/ @SSuryaRao
+
+# Frontend code
+/frontend/ @SSuryaRao
+
+# Infrastructure and deployment
+/functions/ @SSuryaRao
+*.yml @SSuryaRao
+*.yaml @SSuryaRao
+
+# Documentation
+*.md @SSuryaRao
+
+# Configuration files
+*.json @SSuryaRao
+*.config.js @SSuryaRao
+
+# Legal and license files
+LICENSE @SSuryaRao
+COPYRIGHT @SSuryaRao
+SECURITY.md @SSuryaRao

@@ -85,6 +85,12 @@ temp/
 # Documentation (as requested)
 *.md
 !README.md
+!LICENSE
+!COPYRIGHT
+!NOTICE
+!SECURITY.md
+!LICENSE_PROTECTION_GUIDE.md
+!.github/*.md
 
 # Backend documentation files to exclude
 backend/*.md
@@ -158,3 +164,6 @@ test-output/
 # package-lock.json
 # yarn.lock
 # pnpm-lock.yaml
+branch_structure.json
+temp_auto_push.bat
+temp_interactive_push.bat
